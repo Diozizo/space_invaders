@@ -1,5 +1,6 @@
 #include "includes/controller.h"
 #include "includes/enemy.h"
+#include "includes/explosion.h" // <--- NEW: Include explosion header
 #include "includes/physics.h"
 #include "includes/player.h"
 #include "includes/projectile.h"
@@ -26,12 +27,11 @@ int main(int argc, char *argv[]) {
   srand((unsigned int)time(NULL));
 
   // 1. Initialize Player using GAME COORDINATES
-  // We place him at the bottom of the 600px screen, not the 900px window.
   Player *player = createPlayer(GAME_WIDTH / 2.0f, 30, 50);
   if (!player)
     return 1;
 
-  player->y = GAME_HEIGHT - 50; // Y = 550 (Visible!)
+  player->y = GAME_HEIGHT - 50;
 
   // 2. Initialize Projectiles
   Projectiles *bullets = createProjectiles(MAX_PROJECTILES);
@@ -48,36 +48,49 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  // 4. Initialize View
-  // We pass the PHYSICAL size here so the window opens big.
-  SDL_Context *view = initSDLView(WINDOW_WIDTH, WINDOW_HEIGHT);
-  if (!view) {
+  // 4. Initialize Explosions -- NEW --
+  ExplosionManager *explosions = createExplosionManager();
+  if (!explosions) {
     destroyPlayer(player);
     destroyProjectiles(bullets);
     destroySwarm(swarm);
     return 1;
   }
 
+  // 5. Initialize View
+  SDL_Context *view = initSDLView(WINDOW_WIDTH, WINDOW_HEIGHT);
+  if (!view) {
+    destroyPlayer(player);
+    destroyProjectiles(bullets);
+    destroySwarm(swarm);
+    destroyExplosionManager(
+        explosions); // Don't forget to clean this up on error
+    return 1;
+  }
+
   bool isRunning = true;
   uint64_t lastTime = SDL_GetTicks();
 
-  // 5. Game Loop
+  // 6. Game Loop
   while (isRunning) {
     uint64_t currentTime = SDL_GetTicks();
     float deltaTime = (currentTime - lastTime) / 1000.0f;
     lastTime = currentTime;
 
-    // Input
+    // A. Input
     isRunning = handleInput(player, bullets);
 
-    // Logic - Use GAME_WIDTH for boundaries
+    // B. Logic Updates
     updatePlayer(player, deltaTime, GAME_WIDTH);
     updateProjectiles(bullets, deltaTime, GAME_HEIGHT);
     updateSwarm(swarm, deltaTime, GAME_WIDTH);
-
     enemyAttemptShoot(swarm, bullets, deltaTime);
 
-    if (checkCollisions(player, swarm, bullets)) {
+    // NEW: Update explosion animations
+    updateExplosions(explosions, deltaTime);
+
+    // C. Physics (Pass explosions manager so collisions trigger effects)
+    if (checkCollisions(player, swarm, bullets, explosions)) {
       printf("GAME OVER - Player Destroyed\n");
       isRunning = false;
     }
@@ -87,14 +100,16 @@ int main(int argc, char *argv[]) {
       isRunning = false;
     }
 
-    renderSDL(view, player, bullets, swarm);
+    // D. Render (Pass explosions manager to draw them)
+    renderSDL(view, player, bullets, swarm, explosions);
   }
 
-  // Cleanup
+  // 7. Cleanup
   destroySDLView(view);
   destroyPlayer(player);
   destroyProjectiles(bullets);
   destroySwarm(swarm);
+  destroyExplosionManager(explosions); // <--- Destroy explosions
 
   printf("Game exited cleanly.\n");
   return 0;

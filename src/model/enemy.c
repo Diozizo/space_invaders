@@ -14,7 +14,7 @@ Swarm *createSwarm(void) {
   s->moveInterval = MAX_MOVE_INTERVAL;
   s->shootTimer = 0.0f;
   s->shootCooldown = MAX_SHOOT_COOLDOWN;
-
+  s->animationFrame = false;
   s->aliveCount = TOTAL_ENEMIES;
 
   int index = 0;
@@ -75,6 +75,7 @@ void updateSwarm(Swarm *swarm, float deltaTime, unsigned screenWidth) {
 
     // Reset Timer
     swarm->moveTimer = 0.0f;
+    changeFrame(swarm);
 
     // --- LOGIC: Check "Original Block" Collision ---
     // We check the VIRTUAL boundaries of the grid, even if those enemies are
@@ -155,4 +156,8 @@ bool isSwarmDestroyed(const Swarm *swarm) {
   if (!swarm)
     return true;
   return (swarm->aliveCount == 0);
+}
+
+void changeFrame(Swarm *swarm) {
+  swarm->animationFrame = !swarm->animationFrame;
 }
