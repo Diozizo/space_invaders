@@ -1,20 +1,25 @@
 #include "../includes/enemy.h"
 #include <stdlib.h>
-#include <time.h> // Required for rand()
+#include <time.h>
 
 Swarm *createSwarm(void) {
   Swarm *s = (Swarm *)malloc(sizeof(Swarm));
   if (!s)
     return NULL;
 
-  s->direction = 1; // Start moving Right
-  s->moveSpeed = ENEMY_SPEED_X;
-  s->shootTimer = ENEMY_SHOOT_COOLDOWN; // Initialize the shooting timer
+  s->direction = 1; // 1 = Right, -1 = Left
+
+  // Initialize Timers
+  s->moveTimer = 0.0f;
+  s->moveInterval = MAX_MOVE_INTERVAL;
+  s->shootTimer = 0.0f;
+  s->shootCooldown = MAX_SHOOT_COOLDOWN;
+
+  s->aliveCount = TOTAL_ENEMIES;
 
   int index = 0;
   for (int row = 0; row < ENEMY_ROWS; row++) {
     for (int col = 0; col < ENEMY_COLS; col++) {
-      // Calculate position in the grid
       float x = ENEMY_START_X + col * (ENEMY_WIDTH + ENEMY_PADDING);
       float y = ENEMY_START_Y + row * (ENEMY_HEIGHT + ENEMY_PADDING);
 
@@ -35,46 +40,73 @@ void destroySwarm(Swarm *swarm) {
     free(swarm);
 }
 
+// Helper: Counts alive enemies and updates speed
+void updateSwarmSpeed(Swarm *swarm) {
+  unsigned count = 0;
+  for (int i = 0; i < TOTAL_ENEMIES; i++) {
+    if (swarm->enemies[i].active)
+      count++;
+  }
+  swarm->aliveCount = count;
+
+  // Difficulty Factor: 1.0 (All alive) -> 0.0 (None alive)
+  float ratio = (float)count / (float)TOTAL_ENEMIES;
+
+  // Linear Interpolation:
+  // As ratio goes down, Interval goes from MAX to MIN
+  swarm->moveInterval =
+      MIN_MOVE_INTERVAL + (MAX_MOVE_INTERVAL - MIN_MOVE_INTERVAL) * ratio;
+  swarm->shootCooldown =
+      MIN_SHOOT_COOLDOWN + (MAX_SHOOT_COOLDOWN - MIN_SHOOT_COOLDOWN) * ratio;
+}
+
 void updateSwarm(Swarm *swarm, float deltaTime, unsigned screenWidth) {
   if (!swarm)
     return;
 
-  bool hitEdge = false;
+  // 1. Recalculate Speed based on alive enemies
+  updateSwarmSpeed(swarm);
 
-  // 1. Check if ANY alive enemy has hit the edge
-  for (int i = 0; i < TOTAL_ENEMIES; i++) {
-    if (!swarm->enemies[i].active)
-      continue;
+  // 2. Accumulate Timer
+  swarm->moveTimer += deltaTime;
 
-    // Check Right Edge (only if moving Right)
-    if (swarm->direction == 1 &&
-        swarm->enemies[i].x + ENEMY_WIDTH >= screenWidth) {
+  // 3. Only Move if Timer > Interval ("Step" movement)
+  if (swarm->moveTimer >= swarm->moveInterval) {
+
+    // Reset Timer
+    swarm->moveTimer = 0.0f;
+
+    // --- LOGIC: Check "Original Block" Collision ---
+    // We check the VIRTUAL boundaries of the grid, even if those enemies are
+    // dead. Top-Left Enemy (Index 0) defines the Left Edge. Top-Right Enemy
+    // (Index ENEMY_COLS-1) defines the Right Edge.
+
+    float leftEdgeX = swarm->enemies[0].x;
+    // Index 10 is the end of the first row
+    float rightEdgeX = swarm->enemies[ENEMY_COLS - 1].x + ENEMY_WIDTH;
+
+    bool hitEdge = false;
+
+    if (swarm->direction == 1 && rightEdgeX >= screenWidth) {
       hitEdge = true;
-      break;
-    }
-    // Check Left Edge (only if moving Left)
-    if (swarm->direction == -1 && swarm->enemies[i].x <= 0) {
+    } else if (swarm->direction == -1 && leftEdgeX <= 0) {
       hitEdge = true;
-      break;
     }
-  }
 
-  // 2. Apply Movement
-  if (hitEdge) {
-    // Drop down and reverse
-    swarm->direction *= -1; // Flip direction (1 becomes -1)
-
-    for (int i = 0; i < TOTAL_ENEMIES; i++) {
-      swarm->enemies[i].y += ENEMY_DROP_AMOUNT;
-      // Nudge them slightly away from the wall to prevent getting stuck
-      swarm->enemies[i].x += (swarm->direction * 2.0f);
-    }
-  } else {
-    // Normal horizontal movement
-    for (int i = 0; i < TOTAL_ENEMIES; i++) {
-      if (swarm->enemies[i].active) {
-        swarm->enemies[i].x +=
-            (swarm->moveSpeed * swarm->direction) * deltaTime;
+    // --- APPLY MOVEMENT ---
+    if (hitEdge) {
+      // Hit Wall: Drop Down and Reverse
+      swarm->direction *= -1;
+      for (int i = 0; i < TOTAL_ENEMIES; i++) {
+        swarm->enemies[i].y += ENEMY_DROP_AMOUNT;
+        // No horizontal move on the drop frame, or small adjustment
+      }
+    } else {
+      // No Hit: Teleport Horizontally
+      float step = ENEMY_STEP_X * swarm->direction;
+      for (int i = 0; i < TOTAL_ENEMIES; i++) {
+        // Move EVERYONE (active and inactive) to keep grid aligned
+        swarm->enemies[i].x += step;
       }
     }
   }
@@ -88,41 +120,39 @@ void enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles,
   // 1. Update Timer
   if (swarm->shootTimer > 0) {
     swarm->shootTimer -= deltaTime;
-    return; // Not ready to shoot yet
+    return;
   }
 
-  // 2. Reset Timer
-  swarm->shootTimer = ENEMY_SHOOT_COOLDOWN;
+  // 2. Reset Timer (Using the dynamic cooldown calculated in updateSwarm)
+  swarm->shootTimer = swarm->shootCooldown;
 
-  // 3. Pick a random column to start searching
-  // We try 'attempts' times to find a column with living enemies
-  // to prevent the game from doing nothing if we pick an empty column.
+  // 3. Pick a random column
   int attempts = ENEMY_COLS;
   int startCol = rand() % ENEMY_COLS;
 
   for (int i = 0; i < attempts; i++) {
-    // Wrap around logic: ensures we check all columns if needed
     int col = (startCol + i) % ENEMY_COLS;
 
-    // 4. Find bottom-most active enemy in this column
-    // We start from the bottom Row (ENEMY_ROWS - 1) and go UP
+    // 4. Find bottom-most active enemy
     for (int row = ENEMY_ROWS - 1; row >= 0; row--) {
-      int index =
-          row * ENEMY_COLS + col; // Convert Grid (row,col) to Array Index
+      int index = row * ENEMY_COLS + col;
 
       if (swarm->enemies[index].active) {
-        // FOUND A SHOOTER!
         Enemy *shooter = &swarm->enemies[index];
 
-        // Calculate position: Center X, Bottom Y of the enemy
         float bulletX =
             shooter->x + (shooter->width / 2.0f) - (PROJECTILE_WIDTH / 2.0f);
         float bulletY = shooter->y + shooter->height;
 
-        // Spawn with MOVE_DOWN
         spawnProjectile(projectiles, bulletX, bulletY, MOVE_DOWN);
-        return; // Shot fired, stop logic for this frame
+        return;
       }
     }
   }
+}
+
+bool isSwarmDestroyed(const Swarm *swarm) {
+  if (!swarm)
+    return true;
+  return (swarm->aliveCount == 0);
 }

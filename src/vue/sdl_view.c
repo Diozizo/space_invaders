@@ -4,57 +4,73 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-SDL_Context *initSDLView(unsigned width, unsigned height) {
-  // FIX: Use the raw string "SDL_RENDER_SCALE_QUALITY" because the constant
-  // SDL_HINT_RENDER_SCALE_QUALITY might be missing in your specific SDL3
-  // version.
+// --- CONSTANTS ---
+// These define the "Virtual" resolution your game logic runs at.
+// Even if the window is 4K, the game thinks it is 800x600.
+#define LOGICAL_WIDTH 800
+#define LOGICAL_HEIGHT 600
+
+SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
+  // 1. Force "Nearest Neighbor" scaling
+  // This ensures your pixel art stays sharp and doesn't get blurry when
+  // stretched.
   SDL_SetHint("SDL_RENDER_SCALE_QUALITY", "nearest");
 
-  if (!SDL_Init(SDL_INIT_VIDEO)) {
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     return NULL;
   }
 
   SDL_Context *ctx = (SDL_Context *)malloc(sizeof(SDL_Context));
-  if (!ctx) {
+  if (!ctx)
     return NULL;
-  }
 
-  // 1. Create Resizable Window
-  ctx->window =
-      SDL_CreateWindow("Space Invaders", width, height, SDL_WINDOW_RESIZABLE);
+  // 2. Create the Physical Window
+  // We use the width/height passed from main.c (e.g., 1920x1080).
+  ctx->window = SDL_CreateWindow("Space Invaders", windowWidth, windowHeight,
+                                 SDL_WINDOW_RESIZABLE);
   if (!ctx->window) {
-    printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+    printf("Window creation failed: %s\n", SDL_GetError());
     free(ctx);
     return NULL;
   }
 
+  // 3. Create the GPU Renderer
   ctx->renderer = SDL_CreateRenderer(ctx->window, NULL);
   if (!ctx->renderer) {
-    printf("Renderer could no be created! SDL_Error: %s\n", SDL_GetError());
+    printf("Renderer creation failed: %s\n", SDL_GetError());
     SDL_DestroyWindow(ctx->window);
     free(ctx);
     return NULL;
   }
 
-  // 2. Set Logical Presentation
-  // This handles the resizing and aspect ratio automatically.
-  // We use the 4-argument version.
-  SDL_SetRenderLogicalPresentation(ctx->renderer, width, height,
-                                   SDL_LOGICAL_PRESENTATION_LETTERBOX);
+  // 4. Set Logical Presentation (The Magic Step)
+  // We tell SDL: "Treat the game as 800x600, but stretch it to fill the actual
+  // window."
+  if (SDL_SetRenderLogicalPresentation(ctx->renderer, LOGICAL_WIDTH,
+                                       LOGICAL_HEIGHT,
+                                       SDL_LOGICAL_PRESENTATION_STRETCH) < 0) {
+    printf("WARNING: Logical Presentation setup failed: %s\n", SDL_GetError());
+  }
 
-  ctx->screenHeight = height;
-  ctx->screenWidth = width;
+  // 5. Store the LOGICAL dimensions
+  // This is crucial. The rest of your game (Model/Controller) needs to know
+  // the boundaries are 800x600, not the window size.
+  ctx->screenWidth = LOGICAL_WIDTH;
+  ctx->screenHeight = LOGICAL_HEIGHT;
+
   return ctx;
 }
 
 void destroySDLView(SDL_Context *ctx) {
   if (!ctx)
     return;
+
   if (ctx->renderer)
     SDL_DestroyRenderer(ctx->renderer);
   if (ctx->window)
     SDL_DestroyWindow(ctx->window);
+
   free(ctx);
   SDL_Quit();
 }
@@ -64,17 +80,18 @@ void renderSDL(SDL_Context *ctx, const Player *player,
   if (!ctx || !player)
     return;
 
-  // Clear Screen
+  // 1. Clear Screen (Black)
   SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 255);
   SDL_RenderClear(ctx->renderer);
 
-  // Draw Player
+  // 2. Draw Player (Green)
+  // SDL automatically scales these 800x600 coordinates to the window size.
   SDL_FRect playerRect = {player->x, player->y, (float)player->width,
                           (float)player->height};
   SDL_SetRenderDrawColor(ctx->renderer, 0, 255, 0, 255);
   SDL_RenderFillRect(ctx->renderer, &playerRect);
 
-  // Draw Projectiles
+  // 3. Draw Projectiles (Yellow)
   if (projectiles) {
     SDL_SetRenderDrawColor(ctx->renderer, 255, 255, 0, 255);
     for (int i = 0; i < MAX_PROJECTILES; i++) {
@@ -87,7 +104,7 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     }
   }
 
-  // Draw Enemies
+  // 4. Draw Enemies (Red)
   if (swarm) {
     SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, 255);
     for (int i = 0; i < TOTAL_ENEMIES; i++) {
@@ -100,5 +117,6 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     }
   }
 
+  // 5. Present (Applies the scaling and shows the frame)
   SDL_RenderPresent(ctx->renderer);
 }
