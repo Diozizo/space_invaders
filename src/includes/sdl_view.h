@@ -24,6 +24,7 @@ typedef struct {
   SDL_Texture *enemyTexture2;
   SDL_Texture *playerProjectileTexture;
   SDL_Texture *enemyProjectileTexture;
+  SDL_Texture *bunkerTexture;
 
   SDL_Texture *explosionTextures[3];
 

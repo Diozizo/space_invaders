@@ -86,6 +86,8 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
   ctx->exhaustTexture[3] =
       loadTexture(ctx->renderer, "src/assets/player_fire_4.png");
 
+  ctx->bunkerTexture = loadTexture(ctx->renderer, "src/assets/bunker.png");
+
   ctx->explosionTextures[0] =
       loadTexture(ctx->renderer, "src/assets/explosion_1.png");
   ctx->explosionTextures[1] =
@@ -127,6 +129,8 @@ void destroySDLView(SDL_Context *ctx) {
     if (ctx->exhaustTexture[i])
       SDL_DestroyTexture(ctx->exhaustTexture[i]);
   }
+
+  SDL_DestroyTexture(ctx->bunkerTexture);
 
   if (ctx->renderer)
     SDL_DestroyRenderer(ctx->renderer);
@@ -228,8 +232,6 @@ void renderSDL(SDL_Context *ctx, const Player *player,
 
     // --- DRAW BUNKERS (NEW) ---
     if (bunkers) {
-      // Set Color to Green (Classic Space Invaders color)
-      SDL_SetRenderDrawColor(ctx->renderer, 0, 255, 0, 255);
 
       for (int b = 0; b < BUNKER_COUNT; b++) {
         int totalBlocks = BUNKER_ROWS * BUNKER_COLS;
@@ -239,7 +241,14 @@ void renderSDL(SDL_Context *ctx, const Player *player,
                                    bunkers->bunkers[b].blocks[i].y,
                                    BLOCK_SIZE, // 8.0f
                                    BLOCK_SIZE};
-            SDL_RenderFillRect(ctx->renderer, &blockRect);
+
+            if (ctx->bunkerTexture) {
+              SDL_RenderTexture(ctx->renderer, ctx->bunkerTexture, NULL,
+                                &blockRect);
+            } else {
+              SDL_SetRenderDrawColor(ctx->renderer, 0, 255, 0, 255);
+              SDL_RenderFillRect(ctx->renderer, &blockRect);
+            }
           }
         }
       }
