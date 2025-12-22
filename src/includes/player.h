@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "projectile.h"
 #include <stdbool.h>
 
 /**
@@ -8,6 +9,8 @@
  * Used for calculating smooth movement based on Delta Time.
  */
 #define PLAYER_SPEED 300.0f
+
+#define PLAYER_SHOOT_COOLDOWN 0.3f
 
 /**
  * @brief The fixed Y position of the player (vertical lock).
@@ -48,6 +51,7 @@ typedef struct _player {
       shootTimer;  /**< Countdown timer for reloading. 0 means ready to fire. */
   unsigned health; /**< Current lives/health remaining */
   unsigned score;
+
   float animTimer;
   int animFrame;
   int animDir;
@@ -93,5 +97,7 @@ void updatePlayer(Player *player, float deltaTime, unsigned screenWidth);
  * @return false If the weapon is still cooling down.
  */
 bool canPlayerShoot(Player *player);
+
+void playerShoot(Player *player, Projectiles *projectiles);
 
 #endif // PLAYER_H

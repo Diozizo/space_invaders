@@ -32,18 +32,7 @@ bool handleInput(Player *player, Projectiles *projectiles) {
 
   // --- Shooting (New) ---
   if (keyState[SDL_SCANCODE_SPACE]) {
-    // 1. Check Cooldown
-    if (canPlayerShoot(player) && projectiles) {
-
-      // 2. Calculate Position: Center of Player
-      // X = PlayerX + HalfPlayerWidth - HalfBulletWidth
-      float bulletX =
-          player->x + (player->width / 2.0f) - (PROJECTILE_WIDTH / 2.0f);
-      float bulletY = player->y;
-
-      // 3. Fire!
-      spawnProjectile(projectiles, bulletX, bulletY, MOVE_UP);
-    }
+    playerShoot(player, projectiles);
   }
 
   return true;

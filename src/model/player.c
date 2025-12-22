@@ -85,3 +85,23 @@ bool canPlayerShoot(Player *player) {
   }
   return false;
 }
+
+void playerShoot(Player *player, Projectiles *projectiles) {
+  if (!player || !projectiles)
+    return;
+
+  // 1. Check Cooldown
+  if (player->shootTimer <= 0.0f) {
+
+    // 2. Calculate Position (Center of Player)
+    float bulletX =
+        player->x + (player->width / 2.0f) - (PROJECTILE_WIDTH / 2.0f);
+    float bulletY = player->y; // Top of player
+
+    // 3. Fire!
+    spawnProjectile(projectiles, bulletX, bulletY, MOVE_UP);
+
+    // 4. Reset Cooldown
+    player->shootTimer = PLAYER_SHOOT_COOLDOWN;
+  }
+}
