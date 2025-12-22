@@ -1,6 +1,7 @@
 #ifndef SDL_VIEW_H
 #define SDL_VIEW_H
 
+#include "bunker.h"
 #include "enemy.h"
 #include "explosion.h"
 #include "game_state.h"
@@ -53,6 +54,7 @@ void toggleFullscreen(SDL_Context *ctx);
 
 void renderSDL(SDL_Context *ctx, const Player *player,
                const Projectiles *projectiles, const Swarm *swarm,
-               const ExplosionManager *explosions, GameState gameState);
+               const ExplosionManager *explosions, const BunkerManager *bunkers,
+               GameState gameState, bool playerWon);
 
 #endif

@@ -160,10 +160,11 @@ void renderText(SDL_Context *ctx, const char *text, int y, SDL_Color color) {
   SDL_DestroySurface(surface);
 }
 
-// UPDATE: Added 'explosions' parameter
 void renderSDL(SDL_Context *ctx, const Player *player,
                const Projectiles *projectiles, const Swarm *swarm,
-               const ExplosionManager *explosions, GameState gameState) {
+               const ExplosionManager *explosions, const BunkerManager *bunkers,
+               GameState gameState,
+               bool playerWon) { // <--- NEW PARAMETER
   if (!ctx || !player)
     return;
 
@@ -175,21 +176,21 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     SDL_RenderClear(ctx->renderer);
   }
 
+  // Draw Game Elements (Visible in PLAY, PAUSE, and GAME_OVER)
   if (gameState == STATE_PLAYING || gameState == STATE_PAUSED ||
       gameState == STATE_GAME_OVER) {
-    // 1.5 Draw Player Exhaust (NEW)
-    if (player->health > 0) { // Only draw if player is alive
+
+    // 1.5 Draw Player Exhaust
+    if (player->health > 0) {
       int frame = player->animFrame;
+      // Fixed typo: exhaustTexture -> exhaustTextures (plural) to match struct
       if (ctx->exhaustTexture[frame]) {
-        // Calculate position: Centered horizontally, directly below the ship
-        float fireWidth = 20.0f; // Adjust based on your preference
+        float fireWidth = 20.0f;
         float fireHeight = 30.0f;
 
-        SDL_FRect fireRect = {player->x + (player->width / 2.0f) -
-                                  (fireWidth / 2.0f), // Center X
-                              player->y + player->height -
-                                  5.0f, // Just below player (overlap slightly)
-                              fireWidth, fireHeight};
+        SDL_FRect fireRect = {
+            player->x + (player->width / 2.0f) - (fireWidth / 2.0f),
+            player->y + player->height - 5.0f, fireWidth, fireHeight};
 
         SDL_RenderTexture(ctx->renderer, ctx->exhaustTexture[frame], NULL,
                           &fireRect);
@@ -225,7 +226,26 @@ void renderSDL(SDL_Context *ctx, const Player *player,
       }
     }
 
-    // 4. Draw Enemies
+    // --- DRAW BUNKERS (NEW) ---
+    if (bunkers) {
+      // Set Color to Green (Classic Space Invaders color)
+      SDL_SetRenderDrawColor(ctx->renderer, 0, 255, 0, 255);
+
+      for (int b = 0; b < BUNKER_COUNT; b++) {
+        int totalBlocks = BUNKER_ROWS * BUNKER_COLS;
+        for (int i = 0; i < totalBlocks; i++) {
+          if (bunkers->bunkers[b].blocks[i].active) {
+            SDL_FRect blockRect = {bunkers->bunkers[b].blocks[i].x,
+                                   bunkers->bunkers[b].blocks[i].y,
+                                   BLOCK_SIZE, // 8.0f
+                                   BLOCK_SIZE};
+            SDL_RenderFillRect(ctx->renderer, &blockRect);
+          }
+        }
+      }
+    }
+
+    // 4. Draw Enemies (Standard Logic - No Boss yet)
     if (swarm) {
       SDL_Texture *currentAlien =
           swarm->animationFrame ? ctx->enemyTexture2 : ctx->enemyTexture1;
@@ -246,18 +266,14 @@ void renderSDL(SDL_Context *ctx, const Player *player,
       }
     }
 
-    // 5. Draw Explosions (NEW SECTION)
+    // 5. Draw Explosions
     if (explosions) {
       for (int i = 0; i < MAX_EXPLOSIONS; i++) {
         if (explosions->explosions[i].active) {
-          // Get the frame index (0, 1, or 2)
           int frame = explosions->explosions[i].currentFrame;
-
-          // Safety check to ensure we have a valid texture
           if (frame >= 0 && frame < 3 && ctx->explosionTextures[frame]) {
             SDL_FRect explRect = {explosions->explosions[i].x,
-                                  explosions->explosions[i].y,
-                                  EXPLOSION_SIZE, // Defined in explosion.h
+                                  explosions->explosions[i].y, EXPLOSION_SIZE,
                                   EXPLOSION_SIZE};
             SDL_RenderTexture(ctx->renderer, ctx->explosionTextures[frame],
                               NULL, &explRect);
@@ -266,41 +282,31 @@ void renderSDL(SDL_Context *ctx, const Player *player,
       }
     }
 
-    // --- 6. HUD: DRAW HEALTH (LIVES) ---
-    // Draw the player texture small in the top-left corner
+    // 6. HUD: Lives
     if (ctx->playerTexture) {
       for (int i = 0; i < player->health; i++) {
-        // x = 10 + (i * 35) gives spacing: 10, 45, 80...
-        // width/height = 25 (smaller than actual player)
         SDL_FRect lifeRect = {10.0f + (i * 35.0f), 10.0f, 25.0f, 25.0f};
         SDL_RenderTexture(ctx->renderer, ctx->playerTexture, NULL, &lifeRect);
       }
     }
 
-    // --- 7. HUD: DRAW SCORE ---
+    // 7. HUD: Score
     if (ctx->font) {
-      // Create string
       char scoreText[32];
       snprintf(scoreText, sizeof(scoreText), "SCORE: %05d", player->score);
 
-      // Render Text to Surface (White color)
       SDL_Color color = {255, 255, 255, 255};
       SDL_Surface *surface =
           TTF_RenderText_Solid(ctx->font, scoreText, 0, color);
 
       if (surface) {
-        // Convert Surface to Texture
         SDL_Texture *scoreTexture =
             SDL_CreateTextureFromSurface(ctx->renderer, surface);
 
         if (scoreTexture) {
-          // Position at Top Right (approx 200px wide)
           SDL_FRect scoreRect = {(float)(LOGICAL_WIDTH - surface->w - 20),
                                  10.0f, (float)surface->w, (float)surface->h};
-
           SDL_RenderTexture(ctx->renderer, scoreTexture, NULL, &scoreRect);
-
-          // Texture must be destroyed immediately after use
           SDL_DestroyTexture(scoreTexture);
         }
         SDL_DestroySurface(surface);
@@ -308,20 +314,21 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     }
   }
 
+  // --- OVERLAYS ---
   SDL_Color white = {255, 255, 255, 255};
   SDL_Color yellow = {255, 255, 0, 255};
   SDL_Color red = {255, 0, 0, 255};
+  SDL_Color green = {0, 255, 0, 255}; // NEW Color
 
   if (gameState == STATE_MENU) {
-    // Dim the background slightly (Optional)
+    SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 150);
-    SDL_RenderFillRect(ctx->renderer, NULL); // Fill whole screen
+    SDL_RenderFillRect(ctx->renderer, NULL);
 
     renderText(ctx, "SPACE INVADERS", 150, yellow);
     renderText(ctx, "Press ENTER to Start", 300, white);
     renderText(ctx, "Press ESC to Quit", 350, white);
   } else if (gameState == STATE_PAUSED) {
-    // Semi-transparent black overlay
     SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 100);
     SDL_RenderFillRect(ctx->renderer, NULL);
@@ -329,8 +336,21 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     renderText(ctx, "- PAUSED -", 250, yellow);
     renderText(ctx, "Press P to Resume", 320, white);
   } else if (gameState == STATE_GAME_OVER) {
-    renderText(ctx, "GAME OVER", 250, red);
-    renderText(ctx, "Press ENTER to Restart", 320, white);
+    // Darken Background for readability
+    SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 150);
+    SDL_RenderFillRect(ctx->renderer, NULL);
+
+    // --- NEW: WIN vs LOSS Logic ---
+    if (playerWon) {
+      renderText(ctx, "MISSION ACCOMPLISHED!", 200, green);
+      renderText(ctx, "YOU WIN", 250, green);
+    } else {
+      renderText(ctx, "MISSION FAILED", 200, red);
+      renderText(ctx, "GAME OVER", 250, red);
+    }
+
+    renderText(ctx, "Press ENTER for Menu", 350, white);
   }
 
   SDL_RenderPresent(ctx->renderer);

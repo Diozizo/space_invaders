@@ -1,4 +1,6 @@
 #include "../includes/physics.h"
+#include "../includes/bunker.h"
+#include <stdbool.h>
 #include <stdio.h>
 
 // ... checkOverlap helper function remains the same ...
@@ -9,7 +11,7 @@ bool checkOverlap(float x1, float y1, float w1, float h1, float x2, float y2,
 
 // Updated signature
 bool checkCollisions(Player *player, Swarm *swarm, Projectiles *projectiles,
-                     ExplosionManager *explosions) {
+                     ExplosionManager *explosions, BunkerManager *bunkers) {
   if (!player || !swarm || !projectiles)
     return false;
 
@@ -19,9 +21,14 @@ bool checkCollisions(Player *player, Swarm *swarm, Projectiles *projectiles,
     if (!p->active)
       continue;
 
+    if (bunkers && checkBunkerCollision(bunkers, p)) {
+      continue;
+    }
+
     // 1. Player Bullet (UP) vs Enemy
     if (p->velocityY < 0) {
       for (int j = 0; j < TOTAL_ENEMIES; j++) {
+
         Enemy *e = &swarm->enemies[j];
 
         if (e->active && checkOverlap(p->x, p->y, p->w, p->h, e->x, e->y,

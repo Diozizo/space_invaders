@@ -1,14 +1,14 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
 
+#include "bunker.h"
 #include "enemy.h"
-#include "explosion.h" // <--- Add this
+#include "explosion.h"
 #include "player.h"
 #include "projectile.h"
 #include <stdbool.h>
 
-// Updated signature: now accepts ExplosionManager
+// Updated signature: now accepts ExplosionManager and BunkerManager
 bool checkCollisions(Player *player, Swarm *swarm, Projectiles *projectiles,
-                     ExplosionManager *explosions);
-
+                     ExplosionManager *explosions, BunkerManager *bunkers);
 #endif
