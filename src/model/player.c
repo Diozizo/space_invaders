@@ -16,6 +16,9 @@ Player *createPlayer(float xAxis, unsigned height, unsigned width) {
   p->x = xAxis;
   p->y = Y_AXIS;
   p->score = 0;
+  p->animTimer = 0.0f;
+  p->animFrame = 0;
+  p->animDir = 1;
 
   return p;
 }
@@ -57,6 +60,19 @@ void updatePlayer(Player *player, float deltaTime, unsigned screenWidth) {
     player->shootTimer -= deltaTime;
     if (player->shootTimer < 0)
       player->shootTimer = 0;
+  }
+
+  player->animTimer += deltaTime;
+  if (player->animTimer >= 0.3f) {
+    player->animTimer = 0.0f;
+    player->animFrame += player->animDir;
+    if (player->animFrame >= 3) {
+      player->animFrame = 3;
+      player->animDir = -1;
+    } else if (player->animFrame <= 0) {
+      player->animFrame = 0;
+      player->animDir = 1;
+    }
   }
 }
 

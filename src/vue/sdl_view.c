@@ -77,6 +77,15 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
   ctx->enemyProjectileTexture =
       loadTexture(ctx->renderer, "src/assets/bullet_2.png");
 
+  ctx->exhaustTexture[0] =
+      loadTexture(ctx->renderer, "src/assets/player_fire_1.png");
+  ctx->exhaustTexture[1] =
+      loadTexture(ctx->renderer, "src/assets/player_fire_2.png");
+  ctx->exhaustTexture[2] =
+      loadTexture(ctx->renderer, "src/assets/player_fire_3.png");
+  ctx->exhaustTexture[3] =
+      loadTexture(ctx->renderer, "src/assets/player_fire_4.png");
+
   ctx->explosionTextures[0] =
       loadTexture(ctx->renderer, "src/assets/explosion_1.png");
   ctx->explosionTextures[1] =
@@ -114,6 +123,11 @@ void destroySDLView(SDL_Context *ctx) {
       SDL_DestroyTexture(ctx->explosionTextures[i]);
   }
 
+  for (int i = 0; i < 4; i++) {
+    if (ctx->exhaustTexture[i])
+      SDL_DestroyTexture(ctx->exhaustTexture[i]);
+  }
+
   if (ctx->renderer)
     SDL_DestroyRenderer(ctx->renderer);
   if (ctx->window)
@@ -137,6 +151,25 @@ void renderSDL(SDL_Context *ctx, const Player *player,
   } else {
     SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 255);
     SDL_RenderClear(ctx->renderer);
+  }
+
+  // 1.5 Draw Player Exhaust (NEW)
+  if (player->health > 0) { // Only draw if player is alive
+    int frame = player->animFrame;
+    if (ctx->exhaustTexture[frame]) {
+      // Calculate position: Centered horizontally, directly below the ship
+      float fireWidth = 20.0f; // Adjust based on your preference
+      float fireHeight = 30.0f;
+
+      SDL_FRect fireRect = {player->x + (player->width / 2.0f) -
+                                (fireWidth / 2.0f), // Center X
+                            player->y + player->height -
+                                5.0f, // Just below player (overlap slightly)
+                            fireWidth, fireHeight};
+
+      SDL_RenderTexture(ctx->renderer, ctx->exhaustTexture[frame], NULL,
+                        &fireRect);
+    }
   }
 
   // 2. Draw Player

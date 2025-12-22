@@ -48,6 +48,9 @@ typedef struct _player {
       shootTimer;  /**< Countdown timer for reloading. 0 means ready to fire. */
   unsigned health; /**< Current lives/health remaining */
   unsigned score;
+  float animTimer;
+  int animFrame;
+  int animDir;
 } Player;
 
 /**

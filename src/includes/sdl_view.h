@@ -27,6 +27,8 @@ typedef struct {
 
   SDL_Texture *playerExhaustTexture[4];
 
+  SDL_Texture *exhaustTexture[4];
+
   TTF_Font *font;
 } SDL_Context;
 
