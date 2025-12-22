@@ -7,6 +7,7 @@
 #include "projectile.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 // This struct holds the SDL window and renderer so we can pass them around
 typedef struct {
@@ -25,6 +26,8 @@ typedef struct {
   SDL_Texture *explosionTextures[3];
 
   SDL_Texture *playerExhaustTexture[4];
+
+  TTF_Font *font;
 } SDL_Context;
 
 /**

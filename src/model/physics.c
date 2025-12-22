@@ -29,7 +29,7 @@ bool checkCollisions(Player *player, Swarm *swarm, Projectiles *projectiles,
           // HIT!
           p->active = false;
           e->active = false;
-
+          player->score += e->killScore;
           // --- NEW: Spawn Explosion ---
           if (explosions) {
             spawnExplosion(explosions, e->x, e->y);

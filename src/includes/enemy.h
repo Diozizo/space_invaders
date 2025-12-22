@@ -13,6 +13,7 @@
 #define ENEMY_PADDING 10
 #define ENEMY_START_X 50
 #define ENEMY_START_Y 50
+#define ENEMY_KILL_SCORE 100
 
 // MOVEMENT SETTINGS
 #define ENEMY_STEP_X 10.0f // How many pixels they jump per step
@@ -28,6 +29,7 @@
 typedef struct {
   float x, y;
   unsigned width, height;
+  unsigned killScore;
   bool active;
 } Enemy;
 

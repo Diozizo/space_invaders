@@ -1,7 +1,7 @@
 #include "../includes/sdl_view.h"
-#include "../includes/explosion.h" // <--- Required for Explosion struct & EXPLOSION_SIZE
-#include <SDL3/SDL.h>
+#include "../includes/explosion.h"
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,6 +26,12 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
     return NULL;
   }
 
+  if (!TTF_Init()) {
+    printf("TTF Init Error: %s\n", SDL_GetError());
+    SDL_Quit();
+    return NULL;
+  }
+
   SDL_Context *ctx = (SDL_Context *)malloc(sizeof(SDL_Context));
   if (!ctx)
     return NULL;
@@ -44,6 +50,11 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
     SDL_DestroyWindow(ctx->window);
     free(ctx);
     return NULL;
+  }
+
+  ctx->font = TTF_OpenFont("src/assets/font.ttf", 24);
+  if (!ctx->font) {
+    printf("WARNING: Failed to load font: %s\n", SDL_GetError());
   }
 
   // 4. Setup Logical Scaling
@@ -109,6 +120,7 @@ void destroySDLView(SDL_Context *ctx) {
     SDL_DestroyWindow(ctx->window);
 
   free(ctx);
+  TTF_Quit();
   SDL_Quit();
 }
 
@@ -194,6 +206,46 @@ void renderSDL(SDL_Context *ctx, const Player *player,
                             &explRect);
         }
       }
+    }
+  }
+
+  // --- 6. HUD: DRAW HEALTH (LIVES) ---
+  // Draw the player texture small in the top-left corner
+  if (ctx->playerTexture) {
+    for (int i = 0; i < player->health; i++) {
+      // x = 10 + (i * 35) gives spacing: 10, 45, 80...
+      // width/height = 25 (smaller than actual player)
+      SDL_FRect lifeRect = {10.0f + (i * 35.0f), 10.0f, 25.0f, 25.0f};
+      SDL_RenderTexture(ctx->renderer, ctx->playerTexture, NULL, &lifeRect);
+    }
+  }
+
+  // --- 7. HUD: DRAW SCORE ---
+  if (ctx->font) {
+    // Create string
+    char scoreText[32];
+    snprintf(scoreText, sizeof(scoreText), "SCORE: %05d", player->score);
+
+    // Render Text to Surface (White color)
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface *surface = TTF_RenderText_Solid(ctx->font, scoreText, 0, color);
+
+    if (surface) {
+      // Convert Surface to Texture
+      SDL_Texture *scoreTexture =
+          SDL_CreateTextureFromSurface(ctx->renderer, surface);
+
+      if (scoreTexture) {
+        // Position at Top Right (approx 200px wide)
+        SDL_FRect scoreRect = {(float)(LOGICAL_WIDTH - surface->w - 20), 10.0f,
+                               (float)surface->w, (float)surface->h};
+
+        SDL_RenderTexture(ctx->renderer, scoreTexture, NULL, &scoreRect);
+
+        // Texture must be destroyed immediately after use
+        SDL_DestroyTexture(scoreTexture);
+      }
+      SDL_DestroySurface(surface);
     }
   }
 

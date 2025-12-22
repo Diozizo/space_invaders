@@ -28,7 +28,7 @@ Swarm *createSwarm(void) {
       s->enemies[index].width = ENEMY_WIDTH;
       s->enemies[index].height = ENEMY_HEIGHT;
       s->enemies[index].active = true;
-
+      s->enemies[index].killScore = ENEMY_KILL_SCORE; // Set kill score
       index++;
     }
   }

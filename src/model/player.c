@@ -15,6 +15,7 @@ Player *createPlayer(float xAxis, unsigned height, unsigned width) {
   p->height = height;
   p->x = xAxis;
   p->y = Y_AXIS;
+  p->score = 0;
 
   return p;
 }
@@ -65,7 +66,6 @@ bool canPlayerShoot(Player *player) {
   if (player->shootTimer == 0) {
     player->shootTimer = COOLDOWN;
     return true;
-    ;
   }
   return false;
 }
