@@ -284,3 +284,22 @@ void renderSDL(SDL_Context *ctx, const Player *player,
 
   SDL_RenderPresent(ctx->renderer);
 }
+
+void toggleFullscreen(SDL_Context *ctx) {
+  if (!ctx || !ctx->window)
+    return;
+
+  // Get current window flags
+  Uint32 flags = SDL_GetWindowFlags(ctx->window);
+
+  // Check if currently fullscreen
+  bool isFullscreen = flags & SDL_WINDOW_FULLSCREEN;
+
+  // Toggle logic:
+  // If true (fullscreen) -> pass false (windowed)
+  // If false (windowed)  -> pass true (fullscreen)
+  SDL_SetWindowFullscreen(ctx->window, !isFullscreen);
+
+  // Note: SDL3 defaults to "Fullscreen Desktop" (Borderless) which is
+  // usually what you want because it keeps the aspect ratio logic we set up!
+}

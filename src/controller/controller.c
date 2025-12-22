@@ -1,7 +1,7 @@
 #include "../includes/controller.h"
 #include <SDL3/SDL.h>
 
-bool handleInput(Player *player, Projectiles *projectiles) {
+bool handleInput(Player *player, Projectiles *projectiles, SDL_Context *view) {
   if (!player)
     return true;
 
@@ -11,6 +11,17 @@ bool handleInput(Player *player, Projectiles *projectiles) {
   while (SDL_PollEvent(&event)) {
     if (event.type == SDL_EVENT_QUIT) {
       return false;
+    }
+
+    if (event.type == SDL_EVENT_KEY_DOWN) {
+      // Toggle Fullscreen on 'F'
+      if (event.key.scancode == SDL_SCANCODE_F) {
+        toggleFullscreen(view);
+      }
+      // Exit on ESC
+      if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        return false;
+      }
     }
   }
 

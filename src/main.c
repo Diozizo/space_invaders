@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     lastTime = currentTime;
 
     // A. Input
-    isRunning = handleInput(player, bullets);
+    isRunning = handleInput(player, bullets, view);
 
     // B. Logic Updates
     updatePlayer(player, deltaTime, GAME_WIDTH);

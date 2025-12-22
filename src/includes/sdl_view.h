@@ -47,6 +47,9 @@ void destroySDLView(SDL_Context *ctx);
  * @brief Clears the screen, draws the player AND projectiles, and updates the
  * display.
  */
+
+void toggleFullscreen(SDL_Context *ctx);
+
 void renderSDL(SDL_Context *ctx, const Player *player,
                const Projectiles *projectiles, const Swarm *swarm,
                const ExplosionManager *explosions);
