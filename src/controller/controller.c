@@ -1,7 +1,8 @@
 #include "../includes/controller.h"
 #include <SDL3/SDL.h>
 
-bool handleInput(Player *player, Projectiles *projectiles, SDL_Context *view) {
+bool handleInput(Player *player, Projectiles *projectiles, SDL_Context *view,
+                 GameState *state) {
   if (!player)
     return true;
 
@@ -18,9 +19,39 @@ bool handleInput(Player *player, Projectiles *projectiles, SDL_Context *view) {
       if (event.key.scancode == SDL_SCANCODE_F) {
         toggleFullscreen(view);
       }
-      // Exit on ESC
-      if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
-        return false;
+
+      // --- MENU STATE ---
+      if (*state == STATE_MENU) {
+        if (event.key.scancode == SDL_SCANCODE_RETURN) {
+          *state = STATE_PLAYING; // Start Game
+        }
+        if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+          return false; // Quit App
+        }
+      }
+
+      // --- PLAYING STATE ---
+      else if (*state == STATE_PLAYING) {
+        if (event.key.scancode == SDL_SCANCODE_P ||
+            event.key.scancode == SDL_SCANCODE_ESCAPE) {
+          *state = STATE_PAUSED; // Pause
+        }
+      }
+
+      // --- PAUSED STATE ---
+      else if (*state == STATE_PAUSED) {
+        if (event.key.scancode == SDL_SCANCODE_P ||
+            event.key.scancode == SDL_SCANCODE_ESCAPE) {
+          *state = STATE_PLAYING; // Resume
+        }
+      }
+
+      // --- GAME OVER STATE ---
+      else if (*state == STATE_GAME_OVER) {
+        if (event.key.scancode == SDL_SCANCODE_RETURN) {
+          // In main.c, we will detect this change and reset the game entities
+          *state = STATE_MENU;
+        }
       }
     }
   }

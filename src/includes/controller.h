@@ -1,6 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include "controller.h"
 #include "player.h"
 #include "projectile.h"
 #include "sdl_view.h"
@@ -12,6 +13,7 @@
  * @param projectiles Pointer to the projectile pool (for shooting).
  * @return false if the user requested to Quit.
  */
-bool handleInput(Player *player, Projectiles *projectiles, SDL_Context *view);
+bool handleInput(Player *player, Projectiles *projectiles, SDL_Context *view,
+                 GameState *gameState);
 
 #endif

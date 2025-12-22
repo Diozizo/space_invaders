@@ -1,6 +1,7 @@
 #include "includes/controller.h"
 #include "includes/enemy.h"
 #include "includes/explosion.h" // <--- NEW: Include explosion header
+#include "includes/game_state.h"
 #include "includes/physics.h"
 #include "includes/player.h"
 #include "includes/projectile.h"
@@ -25,6 +26,8 @@ int main(int argc, char *argv[]) {
   (void)argv;
 
   srand((unsigned int)time(NULL));
+
+  GameState state = STATE_MENU;
 
   // 1. Initialize Player using GAME COORDINATES
   Player *player = createPlayer(GAME_WIDTH / 2.0f, 30, 50);
@@ -78,30 +81,32 @@ int main(int argc, char *argv[]) {
     lastTime = currentTime;
 
     // A. Input
-    isRunning = handleInput(player, bullets, view);
+    isRunning = handleInput(player, bullets, view, &state);
 
-    // B. Logic Updates
-    updatePlayer(player, deltaTime, GAME_WIDTH);
-    updateProjectiles(bullets, deltaTime, GAME_HEIGHT);
-    updateSwarm(swarm, deltaTime, GAME_WIDTH);
-    enemyAttemptShoot(swarm, bullets, deltaTime);
+    if (state == STATE_PLAYING) {
+      // B. Logic Updates
+      updatePlayer(player, deltaTime, GAME_WIDTH);
+      updateProjectiles(bullets, deltaTime, GAME_HEIGHT);
+      updateSwarm(swarm, deltaTime, GAME_WIDTH);
+      enemyAttemptShoot(swarm, bullets, deltaTime);
 
-    // NEW: Update explosion animations
-    updateExplosions(explosions, deltaTime);
+      // NEW: Update explosion animations
+      updateExplosions(explosions, deltaTime);
 
-    // C. Physics (Pass explosions manager so collisions trigger effects)
-    if (checkCollisions(player, swarm, bullets, explosions)) {
-      printf("GAME OVER - Player Destroyed\n");
-      isRunning = false;
-    }
+      // C. Physics (Pass explosions manager so collisions trigger effects)
+      if (checkCollisions(player, swarm, bullets, explosions)) {
+        printf("GAME OVER - Player Destroyed\n");
+        isRunning = false;
+      }
 
-    if (isSwarmDestroyed(swarm)) {
-      printf("LEVEL COMPLETE - All Enemies Destroyed\n");
-      isRunning = false;
+      if (isSwarmDestroyed(swarm)) {
+        printf("LEVEL COMPLETE - All Enemies Destroyed\n");
+        isRunning = false;
+      }
     }
 
     // D. Render (Pass explosions manager to draw them)
-    renderSDL(view, player, bullets, swarm, explosions);
+    renderSDL(view, player, bullets, swarm, explosions, state);
   }
 
   // 7. Cleanup

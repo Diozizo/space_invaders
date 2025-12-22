@@ -138,10 +138,32 @@ void destroySDLView(SDL_Context *ctx) {
   SDL_Quit();
 }
 
+void renderText(SDL_Context *ctx, const char *text, int y, SDL_Color color) {
+  if (!ctx->font)
+    return;
+
+  SDL_Surface *surface = TTF_RenderText_Solid(ctx->font, text, 0, color);
+  if (!surface)
+    return;
+
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(ctx->renderer, surface);
+  if (texture) {
+    // Center the text horizontally
+    int textW = surface->w;
+    int textH = surface->h;
+    int x = (ctx->screenWidth - textW) / 2;
+
+    SDL_FRect rect = {(float)x, (float)y, (float)textW, (float)textH};
+    SDL_RenderTexture(ctx->renderer, texture, NULL, &rect);
+    SDL_DestroyTexture(texture);
+  }
+  SDL_DestroySurface(surface);
+}
+
 // UPDATE: Added 'explosions' parameter
 void renderSDL(SDL_Context *ctx, const Player *player,
                const Projectiles *projectiles, const Swarm *swarm,
-               const ExplosionManager *explosions) {
+               const ExplosionManager *explosions, GameState gameState) {
   if (!ctx || !player)
     return;
 
@@ -153,133 +175,162 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     SDL_RenderClear(ctx->renderer);
   }
 
-  // 1.5 Draw Player Exhaust (NEW)
-  if (player->health > 0) { // Only draw if player is alive
-    int frame = player->animFrame;
-    if (ctx->exhaustTexture[frame]) {
-      // Calculate position: Centered horizontally, directly below the ship
-      float fireWidth = 20.0f; // Adjust based on your preference
-      float fireHeight = 30.0f;
+  if (gameState == STATE_PLAYING || gameState == STATE_PAUSED ||
+      gameState == STATE_GAME_OVER) {
+    // 1.5 Draw Player Exhaust (NEW)
+    if (player->health > 0) { // Only draw if player is alive
+      int frame = player->animFrame;
+      if (ctx->exhaustTexture[frame]) {
+        // Calculate position: Centered horizontally, directly below the ship
+        float fireWidth = 20.0f; // Adjust based on your preference
+        float fireHeight = 30.0f;
 
-      SDL_FRect fireRect = {player->x + (player->width / 2.0f) -
-                                (fireWidth / 2.0f), // Center X
-                            player->y + player->height -
-                                5.0f, // Just below player (overlap slightly)
-                            fireWidth, fireHeight};
+        SDL_FRect fireRect = {player->x + (player->width / 2.0f) -
+                                  (fireWidth / 2.0f), // Center X
+                              player->y + player->height -
+                                  5.0f, // Just below player (overlap slightly)
+                              fireWidth, fireHeight};
 
-      SDL_RenderTexture(ctx->renderer, ctx->exhaustTexture[frame], NULL,
-                        &fireRect);
+        SDL_RenderTexture(ctx->renderer, ctx->exhaustTexture[frame], NULL,
+                          &fireRect);
+      }
     }
-  }
 
-  // 2. Draw Player
-  if (ctx->playerTexture) {
-    SDL_FRect playerRect = {player->x, player->y, (float)player->width,
-                            (float)player->height};
-    SDL_RenderTexture(ctx->renderer, ctx->playerTexture, NULL, &playerRect);
-  }
+    // 2. Draw Player
+    if (ctx->playerTexture) {
+      SDL_FRect playerRect = {player->x, player->y, (float)player->width,
+                              (float)player->height};
+      SDL_RenderTexture(ctx->renderer, ctx->playerTexture, NULL, &playerRect);
+    }
 
-  // 3. Draw Projectiles
-  if (projectiles) {
-    for (int i = 0; i < MAX_PROJECTILES; i++) {
-      if (projectiles->projectiles[i].active) {
-        SDL_FRect bulletRect = {
-            projectiles->projectiles[i].x, projectiles->projectiles[i].y,
-            projectiles->projectiles[i].w, projectiles->projectiles[i].h};
+    // 3. Draw Projectiles
+    if (projectiles) {
+      for (int i = 0; i < MAX_PROJECTILES; i++) {
+        if (projectiles->projectiles[i].active) {
+          SDL_FRect bulletRect = {
+              projectiles->projectiles[i].x, projectiles->projectiles[i].y,
+              projectiles->projectiles[i].w, projectiles->projectiles[i].h};
 
-        SDL_Texture *bTex = (projectiles->projectiles[i].velocityY < 0)
-                                ? ctx->playerProjectileTexture
-                                : ctx->enemyProjectileTexture;
+          SDL_Texture *bTex = (projectiles->projectiles[i].velocityY < 0)
+                                  ? ctx->playerProjectileTexture
+                                  : ctx->enemyProjectileTexture;
 
-        if (bTex) {
-          SDL_RenderTexture(ctx->renderer, bTex, NULL, &bulletRect);
-        } else {
-          SDL_SetRenderDrawColor(ctx->renderer, 255, 255, 0, 255);
-          SDL_RenderFillRect(ctx->renderer, &bulletRect);
+          if (bTex) {
+            SDL_RenderTexture(ctx->renderer, bTex, NULL, &bulletRect);
+          } else {
+            SDL_SetRenderDrawColor(ctx->renderer, 255, 255, 0, 255);
+            SDL_RenderFillRect(ctx->renderer, &bulletRect);
+          }
         }
       }
     }
-  }
 
-  // 4. Draw Enemies
-  if (swarm) {
-    SDL_Texture *currentAlien =
-        swarm->animationFrame ? ctx->enemyTexture2 : ctx->enemyTexture1;
+    // 4. Draw Enemies
+    if (swarm) {
+      SDL_Texture *currentAlien =
+          swarm->animationFrame ? ctx->enemyTexture2 : ctx->enemyTexture1;
 
-    for (int i = 0; i < TOTAL_ENEMIES; i++) {
-      if (swarm->enemies[i].active) {
-        SDL_FRect enemyRect = {swarm->enemies[i].x, swarm->enemies[i].y,
-                               (float)swarm->enemies[i].width,
-                               (float)swarm->enemies[i].height};
+      for (int i = 0; i < TOTAL_ENEMIES; i++) {
+        if (swarm->enemies[i].active) {
+          SDL_FRect enemyRect = {swarm->enemies[i].x, swarm->enemies[i].y,
+                                 (float)swarm->enemies[i].width,
+                                 (float)swarm->enemies[i].height};
 
-        if (currentAlien) {
-          SDL_RenderTexture(ctx->renderer, currentAlien, NULL, &enemyRect);
-        } else {
-          SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, 255);
-          SDL_RenderFillRect(ctx->renderer, &enemyRect);
+          if (currentAlien) {
+            SDL_RenderTexture(ctx->renderer, currentAlien, NULL, &enemyRect);
+          } else {
+            SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, 255);
+            SDL_RenderFillRect(ctx->renderer, &enemyRect);
+          }
         }
       }
     }
-  }
 
-  // 5. Draw Explosions (NEW SECTION)
-  if (explosions) {
-    for (int i = 0; i < MAX_EXPLOSIONS; i++) {
-      if (explosions->explosions[i].active) {
-        // Get the frame index (0, 1, or 2)
-        int frame = explosions->explosions[i].currentFrame;
+    // 5. Draw Explosions (NEW SECTION)
+    if (explosions) {
+      for (int i = 0; i < MAX_EXPLOSIONS; i++) {
+        if (explosions->explosions[i].active) {
+          // Get the frame index (0, 1, or 2)
+          int frame = explosions->explosions[i].currentFrame;
 
-        // Safety check to ensure we have a valid texture
-        if (frame >= 0 && frame < 3 && ctx->explosionTextures[frame]) {
-          SDL_FRect explRect = {explosions->explosions[i].x,
-                                explosions->explosions[i].y,
-                                EXPLOSION_SIZE, // Defined in explosion.h
-                                EXPLOSION_SIZE};
-          SDL_RenderTexture(ctx->renderer, ctx->explosionTextures[frame], NULL,
-                            &explRect);
+          // Safety check to ensure we have a valid texture
+          if (frame >= 0 && frame < 3 && ctx->explosionTextures[frame]) {
+            SDL_FRect explRect = {explosions->explosions[i].x,
+                                  explosions->explosions[i].y,
+                                  EXPLOSION_SIZE, // Defined in explosion.h
+                                  EXPLOSION_SIZE};
+            SDL_RenderTexture(ctx->renderer, ctx->explosionTextures[frame],
+                              NULL, &explRect);
+          }
         }
       }
     }
-  }
 
-  // --- 6. HUD: DRAW HEALTH (LIVES) ---
-  // Draw the player texture small in the top-left corner
-  if (ctx->playerTexture) {
-    for (int i = 0; i < player->health; i++) {
-      // x = 10 + (i * 35) gives spacing: 10, 45, 80...
-      // width/height = 25 (smaller than actual player)
-      SDL_FRect lifeRect = {10.0f + (i * 35.0f), 10.0f, 25.0f, 25.0f};
-      SDL_RenderTexture(ctx->renderer, ctx->playerTexture, NULL, &lifeRect);
-    }
-  }
-
-  // --- 7. HUD: DRAW SCORE ---
-  if (ctx->font) {
-    // Create string
-    char scoreText[32];
-    snprintf(scoreText, sizeof(scoreText), "SCORE: %05d", player->score);
-
-    // Render Text to Surface (White color)
-    SDL_Color color = {255, 255, 255, 255};
-    SDL_Surface *surface = TTF_RenderText_Solid(ctx->font, scoreText, 0, color);
-
-    if (surface) {
-      // Convert Surface to Texture
-      SDL_Texture *scoreTexture =
-          SDL_CreateTextureFromSurface(ctx->renderer, surface);
-
-      if (scoreTexture) {
-        // Position at Top Right (approx 200px wide)
-        SDL_FRect scoreRect = {(float)(LOGICAL_WIDTH - surface->w - 20), 10.0f,
-                               (float)surface->w, (float)surface->h};
-
-        SDL_RenderTexture(ctx->renderer, scoreTexture, NULL, &scoreRect);
-
-        // Texture must be destroyed immediately after use
-        SDL_DestroyTexture(scoreTexture);
+    // --- 6. HUD: DRAW HEALTH (LIVES) ---
+    // Draw the player texture small in the top-left corner
+    if (ctx->playerTexture) {
+      for (int i = 0; i < player->health; i++) {
+        // x = 10 + (i * 35) gives spacing: 10, 45, 80...
+        // width/height = 25 (smaller than actual player)
+        SDL_FRect lifeRect = {10.0f + (i * 35.0f), 10.0f, 25.0f, 25.0f};
+        SDL_RenderTexture(ctx->renderer, ctx->playerTexture, NULL, &lifeRect);
       }
-      SDL_DestroySurface(surface);
     }
+
+    // --- 7. HUD: DRAW SCORE ---
+    if (ctx->font) {
+      // Create string
+      char scoreText[32];
+      snprintf(scoreText, sizeof(scoreText), "SCORE: %05d", player->score);
+
+      // Render Text to Surface (White color)
+      SDL_Color color = {255, 255, 255, 255};
+      SDL_Surface *surface =
+          TTF_RenderText_Solid(ctx->font, scoreText, 0, color);
+
+      if (surface) {
+        // Convert Surface to Texture
+        SDL_Texture *scoreTexture =
+            SDL_CreateTextureFromSurface(ctx->renderer, surface);
+
+        if (scoreTexture) {
+          // Position at Top Right (approx 200px wide)
+          SDL_FRect scoreRect = {(float)(LOGICAL_WIDTH - surface->w - 20),
+                                 10.0f, (float)surface->w, (float)surface->h};
+
+          SDL_RenderTexture(ctx->renderer, scoreTexture, NULL, &scoreRect);
+
+          // Texture must be destroyed immediately after use
+          SDL_DestroyTexture(scoreTexture);
+        }
+        SDL_DestroySurface(surface);
+      }
+    }
+  }
+
+  SDL_Color white = {255, 255, 255, 255};
+  SDL_Color yellow = {255, 255, 0, 255};
+  SDL_Color red = {255, 0, 0, 255};
+
+  if (gameState == STATE_MENU) {
+    // Dim the background slightly (Optional)
+    SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 150);
+    SDL_RenderFillRect(ctx->renderer, NULL); // Fill whole screen
+
+    renderText(ctx, "SPACE INVADERS", 150, yellow);
+    renderText(ctx, "Press ENTER to Start", 300, white);
+    renderText(ctx, "Press ESC to Quit", 350, white);
+  } else if (gameState == STATE_PAUSED) {
+    // Semi-transparent black overlay
+    SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 100);
+    SDL_RenderFillRect(ctx->renderer, NULL);
+
+    renderText(ctx, "- PAUSED -", 250, yellow);
+    renderText(ctx, "Press P to Resume", 320, white);
+  } else if (gameState == STATE_GAME_OVER) {
+    renderText(ctx, "GAME OVER", 250, red);
+    renderText(ctx, "Press ENTER to Restart", 320, white);
   }
 
   SDL_RenderPresent(ctx->renderer);

@@ -3,6 +3,7 @@
 
 #include "enemy.h"
 #include "explosion.h"
+#include "game_state.h"
 #include "player.h"
 #include "projectile.h"
 #include <SDL3/SDL.h>
@@ -52,6 +53,6 @@ void toggleFullscreen(SDL_Context *ctx);
 
 void renderSDL(SDL_Context *ctx, const Player *player,
                const Projectiles *projectiles, const Swarm *swarm,
-               const ExplosionManager *explosions);
+               const ExplosionManager *explosions, GameState gameState);
 
 #endif
