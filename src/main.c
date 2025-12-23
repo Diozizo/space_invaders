@@ -13,11 +13,8 @@
 #include <time.h>
 
 // --- CONSTANTS ---
-// 1. Physical Window Size
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
-
-// 2. Logical Game Size
 #define GAME_WIDTH 800
 #define GAME_HEIGHT 600
 
@@ -37,7 +34,7 @@ void resetGame(Player *player, Swarm **swarm, Projectiles **bullets,
 
   // 3. Re-create Swarm (Level 1)
   destroySwarm(*swarm);
-  *swarm = createSwarm();
+  *swarm = createSwarm(*currentLevel); // Pass level 1
 
   // 4. Re-create Projectiles (Clears all active bullets)
   destroyProjectiles(*bullets);
@@ -79,7 +76,7 @@ int main(int argc, char *argv[]) {
 
   // 3. Swarm (Start at Level 1)
   int currentLevel = 1;
-  Swarm *swarm = createSwarm();
+  Swarm *swarm = createSwarm(currentLevel); // Pass level 1
   if (!swarm) {
     destroyBunkers(bunkers);
     destroyPlayer(player);
@@ -165,8 +162,8 @@ int main(int argc, char *argv[]) {
         printf("LEVEL %d COMPLETE\n", currentLevel);
         currentLevel++;
 
-        if (currentLevel > 3) {
-          // VICTORY (Beat Level 3/Boss)
+        if (currentLevel > 2) { // Win after level 2
+          // VICTORY (Beat Level 2/Boss)
           printf("YOU WIN!\n");
           playerWon = true;  // Win
           needsReset = true; // Schedule reset
@@ -174,7 +171,7 @@ int main(int argc, char *argv[]) {
         } else {
           // NEXT LEVEL
           destroySwarm(swarm);
-          swarm = createSwarm();
+          swarm = createSwarm(currentLevel); // Pass new level
 
           // Clean bullets for fairness
           destroyProjectiles(bullets);

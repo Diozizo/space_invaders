@@ -105,6 +105,9 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
 
   ctx->bunkerTexture = loadTexture(ctx->renderer, "src/assets/bunker.png");
 
+  // --- NEW: Load Boss Texture ---
+  ctx->bossTexture = loadTexture(ctx->renderer, "src/assets/boss.png");
+
   ctx->explosionTextures[0] =
       loadTexture(ctx->renderer, "src/assets/explosion_1.png");
   ctx->explosionTextures[1] =
@@ -177,6 +180,11 @@ void destroySDLView(SDL_Context *ctx) {
     SDL_DestroyTexture(ctx->playerProjectileTexture);
   if (ctx->enemyProjectileTexture)
     SDL_DestroyTexture(ctx->enemyProjectileTexture);
+
+  // --- NEW: Destroy Boss ---
+  if (ctx->bossTexture)
+    SDL_DestroyTexture(ctx->bossTexture);
+
   if (ctx->musicTrack) {
     MIX_DestroyTrack(ctx->musicTrack);
   }
@@ -267,8 +275,7 @@ void playSound(SDL_Context *ctx, SoundEffect effect) {
 void renderSDL(SDL_Context *ctx, const Player *player,
                const Projectiles *projectiles, const Swarm *swarm,
                const ExplosionManager *explosions, const BunkerManager *bunkers,
-               GameState gameState,
-               bool playerWon) { // <--- NEW PARAMETER
+               GameState gameState, bool playerWon) {
   if (!ctx || !player)
     return;
 
@@ -287,7 +294,6 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     // 1.5 Draw Player Exhaust
     if (player->health > 0) {
       int frame = player->animFrame;
-      // Fixed typo: exhaustTexture -> exhaustTextures (plural) to match struct
       if (ctx->exhaustTexture[frame]) {
         float fireWidth = 20.0f;
         float fireHeight = 30.0f;
@@ -330,9 +336,8 @@ void renderSDL(SDL_Context *ctx, const Player *player,
       }
     }
 
-    // --- DRAW BUNKERS (NEW) ---
+    // --- DRAW BUNKERS ---
     if (bunkers) {
-
       for (int b = 0; b < BUNKER_COUNT; b++) {
         int totalBlocks = BUNKER_ROWS * BUNKER_COLS;
         for (int i = 0; i < totalBlocks; i++) {
@@ -354,22 +359,52 @@ void renderSDL(SDL_Context *ctx, const Player *player,
       }
     }
 
-    // 4. Draw Enemies (Standard Logic - No Boss yet)
+    // 4. Draw Enemies / Boss
     if (swarm) {
-      SDL_Texture *currentAlien =
-          swarm->animationFrame ? ctx->enemyTexture2 : ctx->enemyTexture1;
 
-      for (int i = 0; i < TOTAL_ENEMIES; i++) {
-        if (swarm->enemies[i].active) {
-          SDL_FRect enemyRect = {swarm->enemies[i].x, swarm->enemies[i].y,
-                                 (float)swarm->enemies[i].width,
-                                 (float)swarm->enemies[i].height};
+      // --- BOSS DRAWING LOGIC ---
+      if (swarm->level == 2 && swarm->boss.active) {
+        SDL_FRect bossRect = {swarm->boss.x, swarm->boss.y, swarm->boss.width,
+                              swarm->boss.height};
 
-          if (currentAlien) {
-            SDL_RenderTexture(ctx->renderer, currentAlien, NULL, &enemyRect);
-          } else {
-            SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, 255);
-            SDL_RenderFillRect(ctx->renderer, &enemyRect);
+        if (ctx->bossTexture) {
+          SDL_RenderTexture(ctx->renderer, ctx->bossTexture, NULL, &bossRect);
+        } else {
+          // Fallback: Red Square
+          SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, 255);
+          SDL_RenderFillRect(ctx->renderer, &bossRect);
+        }
+
+        // Draw Boss Health Bar
+        float hpPercent =
+            (float)swarm->boss.health / (float)swarm->boss.maxHealth;
+        SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, 255); // Red background
+        SDL_FRect hpBg = {swarm->boss.x, swarm->boss.y - 15, swarm->boss.width,
+                          10};
+        SDL_RenderFillRect(ctx->renderer, &hpBg);
+
+        SDL_SetRenderDrawColor(ctx->renderer, 0, 255, 0, 255); // Green HP
+        SDL_FRect hpFg = {swarm->boss.x, swarm->boss.y - 15,
+                          swarm->boss.width * hpPercent, 10};
+        SDL_RenderFillRect(ctx->renderer, &hpFg);
+      }
+      // --- NORMAL ENEMIES ---
+      else {
+        SDL_Texture *currentAlien =
+            swarm->animationFrame ? ctx->enemyTexture2 : ctx->enemyTexture1;
+
+        for (int i = 0; i < TOTAL_ENEMIES; i++) {
+          if (swarm->enemies[i].active) {
+            SDL_FRect enemyRect = {swarm->enemies[i].x, swarm->enemies[i].y,
+                                   (float)swarm->enemies[i].width,
+                                   (float)swarm->enemies[i].height};
+
+            if (currentAlien) {
+              SDL_RenderTexture(ctx->renderer, currentAlien, NULL, &enemyRect);
+            } else {
+              SDL_SetRenderDrawColor(ctx->renderer, 255, 0, 0, 255);
+              SDL_RenderFillRect(ctx->renderer, &enemyRect);
+            }
           }
         }
       }
@@ -427,7 +462,7 @@ void renderSDL(SDL_Context *ctx, const Player *player,
   SDL_Color white = {255, 255, 255, 255};
   SDL_Color yellow = {255, 255, 0, 255};
   SDL_Color red = {255, 0, 0, 255};
-  SDL_Color green = {0, 255, 0, 255}; // NEW Color
+  SDL_Color green = {0, 255, 0, 255};
 
   if (gameState == STATE_MENU) {
     SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
@@ -445,12 +480,10 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     renderText(ctx, "- PAUSED -", 250, yellow);
     renderText(ctx, "Press P to Resume", 320, white);
   } else if (gameState == STATE_GAME_OVER) {
-    // Darken Background for readability
     SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 150);
     SDL_RenderFillRect(ctx->renderer, NULL);
 
-    // --- NEW: WIN vs LOSS Logic ---
     if (playerWon) {
       renderText(ctx, "MISSION ACCOMPLISHED!", 200, green);
       renderText(ctx, "YOU WIN", 250, green);
@@ -468,18 +501,7 @@ void renderSDL(SDL_Context *ctx, const Player *player,
 void toggleFullscreen(SDL_Context *ctx) {
   if (!ctx || !ctx->window)
     return;
-
-  // Get current window flags
   Uint32 flags = SDL_GetWindowFlags(ctx->window);
-
-  // Check if currently fullscreen
   bool isFullscreen = flags & SDL_WINDOW_FULLSCREEN;
-
-  // Toggle logic:
-  // If true (fullscreen) -> pass false (windowed)
-  // If false (windowed)  -> pass true (fullscreen)
   SDL_SetWindowFullscreen(ctx->window, !isFullscreen);
-
-  // Note: SDL3 defaults to "Fullscreen Desktop" (Borderless) which is
-  // usually what you want because it keeps the aspect ratio logic we set up!
 }

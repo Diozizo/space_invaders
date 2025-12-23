@@ -34,7 +34,18 @@ typedef struct {
 } Enemy;
 
 typedef struct {
+  bool active;
+  float x, y;
+  float width, height;
+  int health;
+  int maxHealth;
+  float moveTimer;
+  int direction;
+} Boss;
+
+typedef struct {
   Enemy enemies[TOTAL_ENEMIES];
+  Boss boss;
   int direction;
 
   // NEW: Movement Timer Logic
@@ -48,10 +59,12 @@ typedef struct {
 
   unsigned aliveCount; // Tracks how many enemies are left
 
+  int level;
+
   bool animationFrame;
 } Swarm;
 
-Swarm *createSwarm(void);
+Swarm *createSwarm(int level);
 void destroySwarm(Swarm *swarm);
 void updateSwarm(Swarm *swarm, float deltaTime, unsigned screenWidth);
 bool enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles, float deltaTime);

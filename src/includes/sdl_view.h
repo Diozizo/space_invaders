@@ -40,6 +40,8 @@ typedef struct {
 
   SDL_Texture *exhaustTexture[4];
 
+  SDL_Texture *bossTexture;
+
   TTF_Font *font;
 
   MIX_Mixer *mixer;

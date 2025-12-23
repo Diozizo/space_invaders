@@ -1,36 +1,59 @@
 #include "../includes/enemy.h"
+#include <math.h> // For any math needs
 #include <stdlib.h>
 #include <time.h>
 
-Swarm *createSwarm(void) {
+Swarm *createSwarm(int level) {
   Swarm *s = (Swarm *)malloc(sizeof(Swarm));
   if (!s)
     return NULL;
 
-  s->direction = 1; // 1 = Right, -1 = Left
-
-  // Initialize Timers
-  s->moveTimer = 0.0f;
-  s->moveInterval = MAX_MOVE_INTERVAL;
+  s->level = level; // <--- IMPORTANT: Save the level!
   s->shootTimer = 0.0f;
-  s->shootCooldown = MAX_SHOOT_COOLDOWN;
-  s->animationFrame = false;
-  s->aliveCount = TOTAL_ENEMIES;
 
-  int index = 0;
-  for (int row = 0; row < ENEMY_ROWS; row++) {
-    for (int col = 0; col < ENEMY_COLS; col++) {
-      float x = ENEMY_START_X + col * (ENEMY_WIDTH + ENEMY_PADDING);
-      float y = ENEMY_START_Y + row * (ENEMY_HEIGHT + ENEMY_PADDING);
+  if (level == 1) {
+    s->direction = 1; // 1 = Right, -1 = Left
 
-      s->enemies[index].x = x;
-      s->enemies[index].y = y;
-      s->enemies[index].width = ENEMY_WIDTH;
-      s->enemies[index].height = ENEMY_HEIGHT;
-      s->enemies[index].active = true;
-      s->enemies[index].killScore = ENEMY_KILL_SCORE; // Set kill score
-      index++;
+    // Initialize Timers
+    s->moveTimer = 0.0f;
+    s->moveInterval = MAX_MOVE_INTERVAL;
+    s->shootCooldown = MAX_SHOOT_COOLDOWN;
+    s->animationFrame = false;
+    s->aliveCount = TOTAL_ENEMIES;
+
+    // Disable Boss
+    s->boss.active = false;
+
+    int index = 0;
+    for (int row = 0; row < ENEMY_ROWS; row++) {
+      for (int col = 0; col < ENEMY_COLS; col++) {
+        float x = ENEMY_START_X + col * (ENEMY_WIDTH + ENEMY_PADDING);
+        float y = ENEMY_START_Y + row * (ENEMY_HEIGHT + ENEMY_PADDING);
+
+        s->enemies[index].x = x;
+        s->enemies[index].y = y;
+        s->enemies[index].width = ENEMY_WIDTH;
+        s->enemies[index].height = ENEMY_HEIGHT;
+        s->enemies[index].active = true;
+        s->enemies[index].killScore = ENEMY_KILL_SCORE;
+        index++;
+      }
     }
+  } else if (level == 2) {
+    // Disable normal enemies
+    for (int i = 0; i < TOTAL_ENEMIES; i++)
+      s->enemies[i].active = false;
+
+    // Init Boss
+    s->boss.active = true;
+    s->boss.width = 64.0f;
+    s->boss.height = 64.0f;
+    s->boss.x = 400.0f - 32.0f; // Center
+    s->boss.y = 80.0f;
+    s->boss.health = 20; // 20 hits to kill
+    s->boss.maxHealth = 20;
+    s->boss.direction = 1;
+    s->shootCooldown = 0.5f; // Fixed shoot interval for boss
   }
   return s;
 }
@@ -49,11 +72,8 @@ void updateSwarmSpeed(Swarm *swarm) {
   }
   swarm->aliveCount = count;
 
-  // Difficulty Factor: 1.0 (All alive) -> 0.0 (None alive)
   float ratio = (float)count / (float)TOTAL_ENEMIES;
 
-  // Linear Interpolation:
-  // As ratio goes down, Interval goes from MAX to MIN
   swarm->moveInterval =
       MIN_MOVE_INTERVAL + (MAX_MOVE_INTERVAL - MIN_MOVE_INTERVAL) * ratio;
   swarm->shootCooldown =
@@ -64,51 +84,51 @@ void updateSwarm(Swarm *swarm, float deltaTime, unsigned screenWidth) {
   if (!swarm)
     return;
 
-  // 1. Recalculate Speed based on alive enemies
-  updateSwarmSpeed(swarm);
+  if (swarm->level == 1) {
+    updateSwarmSpeed(swarm);
+    swarm->moveTimer += deltaTime;
 
-  // 2. Accumulate Timer
-  swarm->moveTimer += deltaTime;
+    if (swarm->moveTimer >= swarm->moveInterval) {
+      swarm->moveTimer = 0.0f;
+      changeFrame(swarm);
 
-  // 3. Only Move if Timer > Interval ("Step" movement)
-  if (swarm->moveTimer >= swarm->moveInterval) {
+      float leftEdgeX = swarm->enemies[0].x;
+      float rightEdgeX = swarm->enemies[ENEMY_COLS - 1].x + ENEMY_WIDTH;
 
-    // Reset Timer
-    swarm->moveTimer = 0.0f;
-    changeFrame(swarm);
+      bool hitEdge = false;
 
-    // --- LOGIC: Check "Original Block" Collision ---
-    // We check the VIRTUAL boundaries of the grid, even if those enemies are
-    // dead. Top-Left Enemy (Index 0) defines the Left Edge. Top-Right Enemy
-    // (Index ENEMY_COLS-1) defines the Right Edge.
+      if (swarm->direction == 1 && rightEdgeX >= screenWidth) {
+        hitEdge = true;
+      } else if (swarm->direction == -1 && leftEdgeX <= 0) {
+        hitEdge = true;
+      }
 
-    float leftEdgeX = swarm->enemies[0].x;
-    // Index 10 is the end of the first row
-    float rightEdgeX = swarm->enemies[ENEMY_COLS - 1].x + ENEMY_WIDTH;
-
-    bool hitEdge = false;
-
-    if (swarm->direction == 1 && rightEdgeX >= screenWidth) {
-      hitEdge = true;
-    } else if (swarm->direction == -1 && leftEdgeX <= 0) {
-      hitEdge = true;
+      if (hitEdge) {
+        swarm->direction *= -1;
+        for (int i = 0; i < TOTAL_ENEMIES; i++) {
+          swarm->enemies[i].y += ENEMY_DROP_AMOUNT;
+        }
+      } else {
+        float step = ENEMY_STEP_X * swarm->direction;
+        for (int i = 0; i < TOTAL_ENEMIES; i++) {
+          swarm->enemies[i].x += step;
+        }
+      }
     }
+  }
+  // --- BOSS UPDATE ---
+  else if (swarm->level == 2 && swarm->boss.active) {
+    // Fixed: Changed 's' to 'swarm'
+    float speed = 150.0f;
+    swarm->boss.x += swarm->boss.direction * speed * deltaTime;
 
-    // --- APPLY MOVEMENT ---
-    if (hitEdge) {
-      // Hit Wall: Drop Down and Reverse
-      swarm->direction *= -1;
-      for (int i = 0; i < TOTAL_ENEMIES; i++) {
-        swarm->enemies[i].y += ENEMY_DROP_AMOUNT;
-        // No horizontal move on the drop frame, or small adjustment
-      }
-    } else {
-      // No Hit: Teleport Horizontally
-      float step = ENEMY_STEP_X * swarm->direction;
-      for (int i = 0; i < TOTAL_ENEMIES; i++) {
-        // Move EVERYONE (active and inactive) to keep grid aligned
-        swarm->enemies[i].x += step;
-      }
+    // Bounce off walls
+    if (swarm->boss.x <= 0) {
+      swarm->boss.x = 0;
+      swarm->boss.direction = 1;
+    } else if (swarm->boss.x + swarm->boss.width >= screenWidth) {
+      swarm->boss.x = screenWidth - swarm->boss.width;
+      swarm->boss.direction = -1;
     }
   }
 }
@@ -124,9 +144,19 @@ bool enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles,
     return false;
   }
 
-  // 2. Reset Timer (Using the dynamic cooldown calculated in updateSwarm)
+  // 2. Reset Timer
   swarm->shootTimer = swarm->shootCooldown;
 
+  // --- BOSS SHOOTING ---
+  if (swarm->level == 2 && swarm->boss.active) {
+    float bulletX =
+        swarm->boss.x + (swarm->boss.width / 2.0f) - (PROJECTILE_WIDTH / 2.0f);
+    float bulletY = swarm->boss.y + swarm->boss.height;
+    spawnProjectile(projectiles, bulletX, bulletY, MOVE_DOWN);
+    return true;
+  }
+
+  // --- NORMAL ENEMY SHOOTING ---
   // 3. Pick a random column
   int attempts = ENEMY_COLS;
   int startCol = rand() % ENEMY_COLS;
@@ -156,6 +186,11 @@ bool enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles,
 bool isSwarmDestroyed(const Swarm *swarm) {
   if (!swarm)
     return true;
+
+  if (swarm->level == 2) {
+    return !swarm->boss.active;
+  }
+
   return (swarm->aliveCount == 0);
 }
 
