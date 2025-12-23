@@ -21,8 +21,23 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
   // 1. Initialize Graphics
   SDL_SetHint("SDL_RENDER_SCALE_QUALITY", "nearest");
 
-  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO)) {
     printf("SDL Init Error: %s\n", SDL_GetError());
+    return NULL;
+  }
+
+  if (!MIX_Init()) {
+    printf("MIX Init Error: %s\n", SDL_GetError());
+    SDL_Quit();
+    return NULL;
+  }
+
+  MIX_Mixer *mixer =
+      MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+  if (!mixer) {
+    printf("MIX Create Mixer Error: %s\n", SDL_GetError());
+    MIX_Quit();
+    SDL_Quit();
     return NULL;
   }
 
@@ -35,6 +50,8 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
   SDL_Context *ctx = (SDL_Context *)malloc(sizeof(SDL_Context));
   if (!ctx)
     return NULL;
+
+  ctx->mixer = mixer;
 
   // 2. Create Window
   ctx->window = SDL_CreateWindow("Space Invaders", windowWidth, windowHeight,
@@ -95,6 +112,47 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
   ctx->explosionTextures[2] =
       loadTexture(ctx->renderer, "src/assets/explosion_3.png");
 
+  ctx->backgroundMusic =
+      MIX_LoadAudio(ctx->mixer, "src/assets/melody.wav", false);
+
+  if (!ctx->backgroundMusic) {
+    printf("Failed to load melody.wav: %s\n", SDL_GetError());
+    ctx->musicTrack = NULL;
+  } else {
+    ctx->musicTrack = MIX_CreateTrack(ctx->mixer);
+    if (ctx->musicTrack) {
+      MIX_SetTrackAudio(ctx->musicTrack, ctx->backgroundMusic);
+      MIX_SetTrackGain(ctx->musicTrack, 0.5f);
+
+      SDL_PropertiesID props = SDL_CreateProperties();
+
+      SDL_SetNumberProperty(props, MIX_PROP_PLAY_LOOPS_NUMBER, -1);
+
+      MIX_PlayTrack(ctx->musicTrack, props);
+
+      SDL_DestroyProperties(props);
+    }
+
+    ctx->sfxPlayerShoot =
+        MIX_LoadAudio(ctx->mixer, "src/assets/shoot.wav", true);
+    if (!ctx->sfxPlayerShoot)
+      printf("Failed to load shoot.wav");
+
+    ctx->sfxEnemyShoot =
+        MIX_LoadAudio(ctx->mixer, "src/assets/enemy_shoot.wav", true);
+    if (!ctx->sfxEnemyShoot)
+      printf("Failed to load enemy_shoot.wav\n");
+
+    ctx->sfxEnemyExplosion =
+        MIX_LoadAudio(ctx->mixer, "src/assets/explosion.wav", true);
+    if (!ctx->sfxEnemyExplosion)
+      printf("Failed to load explosion.wav\n");
+    ctx->sfxPlayerExplosion =
+        MIX_LoadAudio(ctx->mixer, "src/assets/player_explosion.wav", true);
+    if (!ctx->sfxPlayerExplosion)
+      printf("Failed to load player_explosion.wav\n");
+  }
+
   // Check critical assets
   if (!ctx->playerTexture || !ctx->enemyTexture1) {
     printf("CRITICAL: Failed to load game assets. Check file paths!\n");
@@ -119,6 +177,27 @@ void destroySDLView(SDL_Context *ctx) {
     SDL_DestroyTexture(ctx->playerProjectileTexture);
   if (ctx->enemyProjectileTexture)
     SDL_DestroyTexture(ctx->enemyProjectileTexture);
+  if (ctx->musicTrack) {
+    MIX_DestroyTrack(ctx->musicTrack);
+  }
+  if (ctx->backgroundMusic) {
+    MIX_DestroyAudio(ctx->backgroundMusic);
+  }
+  if (ctx->sfxPlayerShoot) {
+    MIX_DestroyAudio(ctx->sfxPlayerShoot);
+  }
+  if (ctx->sfxEnemyExplosion) {
+    MIX_DestroyAudio(ctx->sfxEnemyExplosion);
+  }
+  if (ctx->sfxPlayerExplosion) {
+    MIX_DestroyAudio(ctx->sfxPlayerExplosion);
+  }
+  if (ctx->sfxEnemyShoot) {
+    MIX_DestroyAudio(ctx->sfxEnemyShoot);
+  }
+  if (ctx->mixer) {
+    MIX_DestroyMixer(ctx->mixer);
+  }
 
   for (int i = 0; i < 3; i++) {
     if (ctx->explosionTextures[i])
@@ -138,6 +217,7 @@ void destroySDLView(SDL_Context *ctx) {
     SDL_DestroyWindow(ctx->window);
 
   free(ctx);
+  MIX_Quit();
   TTF_Quit();
   SDL_Quit();
 }
@@ -162,6 +242,26 @@ void renderText(SDL_Context *ctx, const char *text, int y, SDL_Color color) {
     SDL_DestroyTexture(texture);
   }
   SDL_DestroySurface(surface);
+}
+
+void playSound(SDL_Context *ctx, SoundEffect effect) {
+  if (!ctx || !ctx->mixer) {
+    return;
+  }
+
+  MIX_Audio *target = NULL;
+  if (effect == SOUND_PLAYER_SHOOT) {
+    target = ctx->sfxPlayerShoot;
+  } else if (effect == SOUND_ENEMY_SHOOT) {
+    target = ctx->sfxEnemyShoot;
+  } else if (effect == SOUND_ENEMY_EXPLOSION) {
+    target = ctx->sfxEnemyExplosion;
+  } else if (effect == SOUND_PLAYER_EXPLOSION) {
+    target = ctx->sfxPlayerExplosion;
+  }
+  if (target) {
+    MIX_PlayAudio(ctx->mixer, target);
+  }
 }
 
 void renderSDL(SDL_Context *ctx, const Player *player,

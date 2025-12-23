@@ -113,15 +113,15 @@ void updateSwarm(Swarm *swarm, float deltaTime, unsigned screenWidth) {
   }
 }
 
-void enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles,
+bool enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles,
                        float deltaTime) {
   if (!swarm || !projectiles)
-    return;
+    return false;
 
   // 1. Update Timer
   if (swarm->shootTimer > 0) {
     swarm->shootTimer -= deltaTime;
-    return;
+    return false;
   }
 
   // 2. Reset Timer (Using the dynamic cooldown calculated in updateSwarm)
@@ -146,10 +146,11 @@ void enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles,
         float bulletY = shooter->y + shooter->height;
 
         spawnProjectile(projectiles, bulletX, bulletY, MOVE_DOWN);
-        return;
+        return true;
       }
     }
   }
+  return false;
 }
 
 bool isSwarmDestroyed(const Swarm *swarm) {

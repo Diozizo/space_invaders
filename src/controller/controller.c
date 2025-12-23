@@ -74,7 +74,9 @@ bool handleInput(Player *player, Projectiles *projectiles, SDL_Context *view,
 
   // --- Shooting (New) ---
   if (keyState[SDL_SCANCODE_SPACE]) {
-    playerShoot(player, projectiles);
+    if (playerShoot(player, projectiles)) {
+      playSound(view, SOUND_PLAYER_SHOOT);
+    }
   }
 
   return true;

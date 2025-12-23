@@ -9,7 +9,15 @@
 #include "projectile.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include <SDL3_ttf/SDL_ttf.h>
+
+typedef enum {
+  SOUND_PLAYER_SHOOT,
+  SOUND_ENEMY_SHOOT,
+  SOUND_ENEMY_EXPLOSION,
+  SOUND_PLAYER_EXPLOSION
+} SoundEffect;
 
 // This struct holds the SDL window and renderer so we can pass them around
 typedef struct {
@@ -33,6 +41,17 @@ typedef struct {
   SDL_Texture *exhaustTexture[4];
 
   TTF_Font *font;
+
+  MIX_Mixer *mixer;
+  MIX_Audio *backgroundMusic;
+  MIX_Track *musicTrack;
+
+  MIX_Audio *sfxPlayerShoot;
+  MIX_Audio *sfxEnemyShoot;
+
+  MIX_Audio *sfxEnemyExplosion;
+  MIX_Audio *sfxPlayerExplosion;
+
 } SDL_Context;
 
 /**
@@ -52,6 +71,8 @@ void destroySDLView(SDL_Context *ctx);
  */
 
 void toggleFullscreen(SDL_Context *ctx);
+
+void playSound(SDL_Context *ctx, SoundEffect effect);
 
 void renderSDL(SDL_Context *ctx, const Player *player,
                const Projectiles *projectiles, const Swarm *swarm,

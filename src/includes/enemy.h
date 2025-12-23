@@ -54,7 +54,7 @@ typedef struct {
 Swarm *createSwarm(void);
 void destroySwarm(Swarm *swarm);
 void updateSwarm(Swarm *swarm, float deltaTime, unsigned screenWidth);
-void enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles, float deltaTime);
+bool enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles, float deltaTime);
 bool isSwarmDestroyed(const Swarm *swarm);
 void changeFrame(Swarm *swarm);
 

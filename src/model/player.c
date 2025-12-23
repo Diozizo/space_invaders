@@ -86,9 +86,9 @@ bool canPlayerShoot(Player *player) {
   return false;
 }
 
-void playerShoot(Player *player, Projectiles *projectiles) {
+bool playerShoot(Player *player, Projectiles *projectiles) {
   if (!player || !projectiles)
-    return;
+    return false;
 
   // 1. Check Cooldown
   if (player->shootTimer <= 0.0f) {
@@ -103,5 +103,9 @@ void playerShoot(Player *player, Projectiles *projectiles) {
 
     // 4. Reset Cooldown
     player->shootTimer = PLAYER_SHOOT_COOLDOWN;
+
+    return true;
   }
+
+  return false;
 }

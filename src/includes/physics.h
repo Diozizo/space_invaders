@@ -10,5 +10,6 @@
 
 // Updated signature: now accepts ExplosionManager and BunkerManager
 bool checkCollisions(Player *player, Swarm *swarm, Projectiles *projectiles,
-                     ExplosionManager *explosions, BunkerManager *bunkers);
+                     ExplosionManager *explosions, BunkerManager *bunkers,
+                     bool *enemyHit);
 #endif

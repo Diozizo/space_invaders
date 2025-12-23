@@ -140,15 +140,24 @@ int main(int argc, char *argv[]) {
       updatePlayer(player, deltaTime, GAME_WIDTH);
       updateProjectiles(bullets, deltaTime, GAME_HEIGHT);
       updateSwarm(swarm, deltaTime, GAME_WIDTH);
-      enemyAttemptShoot(swarm, bullets, deltaTime);
+      if (enemyAttemptShoot(swarm, bullets, deltaTime)) {
+        playSound(view, SOUND_ENEMY_SHOOT);
+      }
       updateExplosions(explosions, deltaTime);
 
+      bool enemyHit = false;
       // C. Physics
-      if (checkCollisions(player, swarm, bullets, explosions, bunkers)) {
+      if (checkCollisions(player, swarm, bullets, explosions, bunkers,
+                          &enemyHit)) {
         printf("GAME OVER - Player Destroyed\n");
+        playSound(view, SOUND_PLAYER_EXPLOSION);
         playerWon = false; // Loss
         needsReset = true; // Schedule reset
         state = STATE_GAME_OVER;
+      }
+
+      if (enemyHit) {
+        playSound(view, SOUND_ENEMY_EXPLOSION);
       }
 
       // D. Level Progression

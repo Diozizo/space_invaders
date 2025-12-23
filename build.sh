@@ -2,9 +2,9 @@
 
 INIT_PATH=$PWD
 
-# ---- SDL3 ----
-if [ ! -d 3rdParty/SDL3-3.2.24/build ]; then
-	cd 3rdParty/SDL3-3.2.24/
+# ---- SDL3 (New Folder Name) ----
+if [ ! -d 3rdParty/SDL3/build ]; then
+	cd 3rdParty/SDL3/
 	mkdir build
 	cd build
 	cmake ..
@@ -16,7 +16,8 @@ if [ ! -d $INIT_PATH/3rdParty/SDL3_image-3.2.4/build ]; then
 	cd $INIT_PATH/3rdParty/SDL3_image-3.2.4/
 	mkdir build
 	cd build
-	cmake .. -DSDL3_DIR=../SDL3-3.2.24/build
+	# Points to new SDL3 folder
+	cmake .. -DSDL3_DIR=../SDL3/build
 	make -j
 fi
 
@@ -25,7 +26,8 @@ if [ ! -d $INIT_PATH/3rdParty/SDL3_gfx-1.0.1/build ]; then
 	cd $INIT_PATH/3rdParty/SDL3_gfx-1.0.1/
 	mkdir build
 	cd build
-	cmake .. -DSDL3_DIR=../SDL3-3.2.24/build
+	# Points to new SDL3 folder
+	cmake .. -DSDL3_DIR=../SDL3/build
 	make -j
 fi
 
@@ -37,7 +39,18 @@ if [ ! -d $INIT_PATH/3rdParty/SDL3_ttf/build ]; then
 	cd $INIT_PATH/3rdParty/SDL3_ttf/
 	mkdir build
 	cd build
-	cmake .. -DSDL3_DIR=../SDL3-3.2.24/build
+	# Points to new SDL3 folder
+	cmake .. -DSDL3_DIR=../SDL3/build
+	make -j
+fi
+
+# ---- SDL3_mixer ----
+if [ ! -d $INIT_PATH/3rdParty/SDL3_mixer/build ]; then
+	cd $INIT_PATH/3rdParty/SDL3_mixer/ || exit 1
+	mkdir build
+	cd build || exit 1
+	# Points to new SDL3 folder
+	cmake .. -DSDL3_DIR=../SDL3/build
 	make -j
 fi
 

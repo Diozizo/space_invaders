@@ -98,6 +98,6 @@ void updatePlayer(Player *player, float deltaTime, unsigned screenWidth);
  */
 bool canPlayerShoot(Player *player);
 
-void playerShoot(Player *player, Projectiles *projectiles);
+bool playerShoot(Player *player, Projectiles *projectiles);
 
 #endif // PLAYER_H

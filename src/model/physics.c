@@ -11,7 +11,8 @@ bool checkOverlap(float x1, float y1, float w1, float h1, float x2, float y2,
 
 // Updated signature
 bool checkCollisions(Player *player, Swarm *swarm, Projectiles *projectiles,
-                     ExplosionManager *explosions, BunkerManager *bunkers) {
+                     ExplosionManager *explosions, BunkerManager *bunkers,
+                     bool *enemyHit) {
   if (!player || !swarm || !projectiles)
     return false;
 
@@ -41,7 +42,8 @@ bool checkCollisions(Player *player, Swarm *swarm, Projectiles *projectiles,
           if (explosions) {
             spawnExplosion(explosions, e->x, e->y);
           }
-
+          if (enemyHit)
+            *enemyHit = true;
           break;
         }
       }
