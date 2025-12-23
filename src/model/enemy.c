@@ -152,7 +152,16 @@ bool enemyAttemptShoot(Swarm *swarm, Projectiles *projectiles,
     float bulletX =
         swarm->boss.x + (swarm->boss.width / 2.0f) - (PROJECTILE_WIDTH / 2.0f);
     float bulletY = swarm->boss.y + swarm->boss.height;
+
+    // SHOT 1: Straight Down
     spawnProjectile(projectiles, bulletX, bulletY, MOVE_DOWN);
+
+    // SHOT 2: Diagonal Left
+    spawnProjectile(projectiles, bulletX, bulletY, MOVE_DOWN_LEFT);
+
+    // SHOT 3: Diagonal Right
+    spawnProjectile(projectiles, bulletX, bulletY, MOVE_DOWN_RIGHT);
+
     return true;
   }
 

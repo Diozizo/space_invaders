@@ -31,9 +31,16 @@ void spawnProjectile(Projectiles *projectiles, float x, float y,
     if (!projectiles->projectiles[i].active) {
       projectiles->projectiles[i].x = x;
       projectiles->projectiles[i].y = y;
+      projectiles->projectiles[i].velocityX = 0.0f;
       if (direction == MOVE_UP) {
         projectiles->projectiles[i].velocityY = -PROJECTILE_SPEED;
       } else if (direction == MOVE_DOWN) {
+        projectiles->projectiles[i].velocityY = PROJECTILE_SPEED;
+      } else if (direction == MOVE_DOWN_LEFT) {
+        projectiles->projectiles[i].velocityX = -150.0f;
+        projectiles->projectiles[i].velocityY = PROJECTILE_SPEED;
+      } else if (direction == MOVE_DOWN_RIGHT) {
+        projectiles->projectiles[i].velocityX = 150.0f;
         projectiles->projectiles[i].velocityY = PROJECTILE_SPEED;
       } else {
         projectiles->projectiles[i].velocityY = 0.0f;
@@ -55,8 +62,12 @@ void updateProjectiles(Projectiles *projectiles, float deltaTime,
     if (projectiles->projectiles[i].active) {
       projectiles->projectiles[i].y +=
           projectiles->projectiles[i].velocityY * deltaTime;
+      projectiles->projectiles[i].x +=
+          projectiles->projectiles[i].velocityX * deltaTime;
       if (projectiles->projectiles[i].y < 0 ||
-          projectiles->projectiles[i].y > screenHeight) {
+          projectiles->projectiles[i].y > screenHeight ||
+          projectiles->projectiles[i].x < 0 ||
+          projectiles->projectiles[i].x > 800) {
         projectiles->projectiles[i].active = false;
       }
     }

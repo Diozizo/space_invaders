@@ -10,7 +10,9 @@
 
 typedef enum _DirectionProjectile {
   MOVE_UP = -1,
-  MOVE_DOWN = 1
+  MOVE_DOWN = 1,
+  MOVE_DOWN_LEFT,
+  MOVE_DOWN_RIGHT
 } DirectionProjectile;
 
 /**
@@ -20,6 +22,7 @@ typedef struct _Projectile {
   float x, y;
   float w, h;
   float velocityY;
+  float velocityX;
   bool active;
 } Projectile;
 
