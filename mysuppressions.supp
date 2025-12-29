@@ -1,0 +1,37 @@
+{
+   <SDL_X11_GlobalScale_Malloc>
+   Memcheck:Leak
+   match-leak-kinds: all
+   fun:malloc
+   ...
+   fun:X11_GetGlobalContentScale
+}
+{
+   <SDL_X11_GlobalScale_Calloc>
+   Memcheck:Leak
+   match-leak-kinds: all
+   fun:calloc
+   ...
+   fun:X11_GetGlobalContentScale
+}
+{
+   <SDL_X11_Init_Modes>
+   Memcheck:Leak
+   match-leak-kinds: all
+   ...
+   fun:X11_InitModes*
+}
+{
+   <SDL_X11_Keyboard>
+   Memcheck:Leak
+   match-leak-kinds: all
+   ...
+   fun:X11_InitKeyboard
+}
+{
+   <LLVM_Driver>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   obj:*/libLLVM*
+}

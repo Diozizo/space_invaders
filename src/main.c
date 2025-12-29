@@ -15,7 +15,7 @@
 #include "includes/projectile.h"
 
 // SDL Specifics
-#include "includes/controller.h" // Your original SDL controller
+#include "includes/controller.h"
 #include "includes/sdl_view.h"
 #include <SDL3/SDL.h>
 
@@ -36,8 +36,14 @@ void resetGameLogic(Player *p, Swarm **s, Projectiles **b, BunkerManager *bk,
   *lvl = 1;
   destroySwarm(*s);
   *s = createSwarm(*lvl);
+  if (!s) {
+    exit(EXIT_FAILURE);
+  }
   destroyProjectiles(*b);
   *b = createProjectiles(MAX_PROJECTILES);
+  if (!b) {
+    exit(EXIT_FAILURE);
+  }
   resetBunkers(bk, GAME_WIDTH);
 }
 
@@ -45,23 +51,52 @@ void resetGameLogic(Player *p, Swarm **s, Projectiles **b, BunkerManager *bk,
 //              SDL RUNNER
 // ==========================================
 void runSDL() {
+  printf("DEBUG: Initializing SDL View...\n");
   SDL_Context *view = initSDLView(GAME_WIDTH, GAME_HEIGHT);
   if (!view)
     return;
 
   Player *player = createPlayer(GAME_WIDTH / 2.0f, 30, 50);
+  if (!player) {
+    destroySDLView(view);
+    return;
+  }
   player->y = GAME_HEIGHT - 50;
   Swarm *swarm = createSwarm(1);
+  if (!swarm) {
+    destroyPlayer(player);
+    destroySDLView(view);
+    return;
+  }
   Projectiles *bullets = createProjectiles(MAX_PROJECTILES);
+  if (!bullets) {
+    destroySwarm(swarm);
+    destroyPlayer(player);
+    destroySDLView(view);
+    return;
+  }
   ExplosionManager *explosions = createExplosionManager();
+  if (!explosions) {
+    destroyProjectiles(bullets);
+    destroySwarm(swarm);
+    destroyPlayer(player);
+    destroySDLView(view);
+    return;
+  }
   BunkerManager *bunkers = createBunkers(GAME_WIDTH);
+  if (!bunkers) {
+    destroyExplosionManager(explosions);
+    destroyProjectiles(bullets);
+    destroySwarm(swarm);
+    destroyPlayer(player);
+    destroySDLView(view);
+    return;
+  }
   int currentLevel = 1;
 
   GameState state = STATE_MENU;
   bool isRunning = true;
   bool playerWon = false;
-  // We don't use a needsReset flag here because your old controller handles
-  // transitions differently, but we can detect state changes.
 
   unsigned long lastTime = SDL_GetTicks();
 
@@ -70,17 +105,13 @@ void runSDL() {
     float deltaTime = (currentTime - lastTime) / 1000.0f;
     lastTime = currentTime;
 
-    // 1. INPUT (Uses your original controller)
-    // This function sets player direction (MOVE_LEFT/MOVE_RIGHT) but doesn't
-    // move X directly
+    // 1. INPUT
+    // If you click X, handleInput must return FALSE
     isRunning = handleInput(player, bullets, view, &state);
 
     // 2. LOGIC
     if (state == STATE_PLAYING) {
-      // CRITICAL: updatePlayer applies the movement based on the direction set
-      // by handleInput
       updatePlayer(player, deltaTime, GAME_WIDTH);
-
       updateProjectiles(bullets, deltaTime, GAME_HEIGHT);
       updateSwarm(swarm, deltaTime, GAME_WIDTH);
       updateExplosions(explosions, deltaTime);
@@ -109,24 +140,20 @@ void runSDL() {
           bullets = createProjectiles(MAX_PROJECTILES);
         }
       }
-    } else if (state == STATE_GAME_OVER) {
-      // Simple check if user pressed Enter to restart (detected in handleInput
-      // setting state to MENU) If we just transitioned to MENU, we reset. Note:
-      // Your handleInput sets state to MENU on Enter. We detect that here:
-      // Actually, since handleInput changes state, we need to check if we need
-      // to reset *after* the change. We'll rely on a manual check: if player
-      // score > 0 and state is MENU, assume restart.
     }
 
     // 3. RENDER
     renderSDL(view, player, bullets, swarm, explosions, bunkers, state,
               playerWon);
 
-    // Manual Reset Check (Since your controller sets state directly)
+    // Manual Reset Check
     if (state == STATE_MENU && (player->score > 0 || !player->health)) {
       resetGameLogic(player, &swarm, &bullets, bunkers, &currentLevel);
     }
   }
+
+  // --- DEBUG PRINTS TO PROVE CLEANUP RUNS ---
+  printf("DEBUG: Loop exited. Starting cleanup...\n");
 
   destroySDLView(view);
   destroyPlayer(player);
@@ -134,6 +161,8 @@ void runSDL() {
   destroyProjectiles(bullets);
   destroyExplosionManager(explosions);
   destroyBunkers(bunkers);
+
+  printf("DEBUG: Cleanup finished successfully.\n");
 }
 
 // ==========================================
@@ -173,14 +202,10 @@ void runNcurses() {
 
     // 2. LOGIC
     if (state == STATE_PLAYING) {
-
-      // --- FIX: DECREMENT SHOOT TIMER ---
-      // This allows the player to shoot again after the cooldown
       if (player->shootTimer > 0.0f) {
         player->shootTimer -= deltaTime;
       }
 
-      // Update entities
       updateProjectiles(bullets, deltaTime, GAME_HEIGHT);
       updateSwarm(swarm, deltaTime, GAME_WIDTH);
       updateExplosions(explosions, deltaTime);
@@ -210,11 +235,10 @@ void runNcurses() {
       playerWon = false;
     }
 
-    // 3. RENDER
     renderNcurses(view, player, bullets, swarm, explosions, bunkers, state,
                   playerWon);
 
-    struct timespec sleepTs = {0, 15000000}; // 15ms sleep
+    struct timespec sleepTs = {0, 15000000};
     nanosleep(&sleepTs, NULL);
   }
 

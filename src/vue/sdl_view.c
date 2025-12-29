@@ -47,7 +47,7 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
     return NULL;
   }
 
-  SDL_Context *ctx = (SDL_Context *)malloc(sizeof(SDL_Context));
+  SDL_Context *ctx = (SDL_Context *)calloc(1, sizeof(SDL_Context));
   if (!ctx)
     return NULL;
 
@@ -139,21 +139,21 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
     ctx->sfxPlayerShoot =
         MIX_LoadAudio(ctx->mixer, "src/assets/shoot.wav", true);
     if (!ctx->sfxPlayerShoot)
-      printf("Failed to load shoot.wav");
+      printf("Failed to load shoot.wav: %s\n", SDL_GetError());
 
     ctx->sfxEnemyShoot =
         MIX_LoadAudio(ctx->mixer, "src/assets/enemy_shoot.wav", true);
     if (!ctx->sfxEnemyShoot)
-      printf("Failed to load enemy_shoot.wav\n");
+      printf("Failed to load enemy_shoot.wav: %s\n", SDL_GetError());
 
     ctx->sfxEnemyExplosion =
         MIX_LoadAudio(ctx->mixer, "src/assets/explosion.wav", true);
     if (!ctx->sfxEnemyExplosion)
-      printf("Failed to load explosion.wav\n");
+      printf("Failed to load explosion.wav: %s\n", SDL_GetError());
     ctx->sfxPlayerExplosion =
         MIX_LoadAudio(ctx->mixer, "src/assets/player_explosion.wav", true);
     if (!ctx->sfxPlayerExplosion)
-      printf("Failed to load player_explosion.wav\n");
+      printf("Failed to load player_explosion.wav: %s\n", SDL_GetError());
   }
 
   // Check critical assets
@@ -168,6 +168,7 @@ void destroySDLView(SDL_Context *ctx) {
   if (!ctx)
     return;
 
+  // 1. Destroy Textures
   if (ctx->backgroundTexture)
     SDL_DestroyTexture(ctx->backgroundTexture);
   if (ctx->playerTexture)
@@ -180,11 +181,27 @@ void destroySDLView(SDL_Context *ctx) {
     SDL_DestroyTexture(ctx->playerProjectileTexture);
   if (ctx->enemyProjectileTexture)
     SDL_DestroyTexture(ctx->enemyProjectileTexture);
-
-  // --- NEW: Destroy Boss ---
   if (ctx->bossTexture)
     SDL_DestroyTexture(ctx->bossTexture);
 
+  // 2. Destroy Arrays of Textures (CRITICAL FIX)
+  for (int i = 0; i < 3; i++) {
+    if (ctx->explosionTextures[i])
+      SDL_DestroyTexture(ctx->explosionTextures[i]);
+  }
+
+  // You had TWO arrays in your header. Clean BOTH.
+  for (int i = 0; i < 4; i++) {
+    if (ctx->exhaustTexture[i])
+      SDL_DestroyTexture(ctx->exhaustTexture[i]);
+    if (ctx->playerExhaustTexture[i])
+      SDL_DestroyTexture(ctx->playerExhaustTexture[i]);
+  }
+  if (ctx->bunkerTexture)
+    SDL_DestroyTexture(ctx->bunkerTexture);
+
+  // 2. Destroy Audio
+  // Note: We destroy tracks/chunks BEFORE the mixer
   if (ctx->musicTrack) {
     MIX_DestroyTrack(ctx->musicTrack);
   }
@@ -203,33 +220,30 @@ void destroySDLView(SDL_Context *ctx) {
   if (ctx->sfxEnemyShoot) {
     MIX_DestroyAudio(ctx->sfxEnemyShoot);
   }
+
   if (ctx->mixer) {
     MIX_DestroyMixer(ctx->mixer);
   }
 
-  for (int i = 0; i < 3; i++) {
-    if (ctx->explosionTextures[i])
-      SDL_DestroyTexture(ctx->explosionTextures[i]);
+  // 3. Destroy Font (THIS WAS MISSING)
+  if (ctx->font) {
+    TTF_CloseFont(ctx->font);
   }
 
-  for (int i = 0; i < 4; i++) {
-    if (ctx->exhaustTexture[i])
-      SDL_DestroyTexture(ctx->exhaustTexture[i]);
-  }
-
-  SDL_DestroyTexture(ctx->bunkerTexture);
-
+  // 4. Destroy Renderer/Window
   if (ctx->renderer)
     SDL_DestroyRenderer(ctx->renderer);
   if (ctx->window)
     SDL_DestroyWindow(ctx->window);
 
-  free(ctx);
+  // 5. Quit Subsystems
   MIX_Quit();
   TTF_Quit();
   SDL_Quit();
-}
 
+  // 6. Free Context
+  free(ctx);
+}
 void renderText(SDL_Context *ctx, const char *text, int y, SDL_Color color) {
   if (!ctx->font)
     return;

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 Projectiles *createProjectiles(unsigned count) {
-  Projectiles *projectiles = (Projectiles *)malloc(sizeof(Projectiles));
+  Projectiles *projectiles = (Projectiles *)calloc(1, sizeof(Projectiles));
   if (!projectiles) {
     // handle error will do that later
     return NULL;

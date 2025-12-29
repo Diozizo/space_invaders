@@ -4,7 +4,7 @@
 #include <time.h>
 
 Swarm *createSwarm(int level) {
-  Swarm *s = (Swarm *)malloc(sizeof(Swarm));
+  Swarm *s = (Swarm *)calloc(1, sizeof(Swarm));
   if (!s)
     return NULL;
 
@@ -59,8 +59,9 @@ Swarm *createSwarm(int level) {
 }
 
 void destroySwarm(Swarm *swarm) {
-  if (swarm)
+  if (swarm) {
     free(swarm);
+  }
 }
 
 // Helper: Counts alive enemies and updates speed

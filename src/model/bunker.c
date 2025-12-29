@@ -35,7 +35,7 @@ void initBunkerShape(Bunker *b, float startX, float startY) {
 }
 
 BunkerManager *createBunkers(unsigned screenWidth) {
-  BunkerManager *bm = (BunkerManager *)malloc(sizeof(BunkerManager));
+  BunkerManager *bm = (BunkerManager *)calloc(1, sizeof(BunkerManager));
   if (!bm) {
     return NULL;
   }

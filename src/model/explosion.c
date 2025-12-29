@@ -2,7 +2,8 @@
 #include <stdlib.h>
 
 ExplosionManager *createExplosionManager(void) {
-  ExplosionManager *em = (ExplosionManager *)malloc(sizeof(ExplosionManager));
+  ExplosionManager *em =
+      (ExplosionManager *)calloc(1, sizeof(ExplosionManager));
   if (!em)
     return NULL;
 

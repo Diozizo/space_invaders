@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 Player *createPlayer(float xAxis, unsigned height, unsigned width) {
-  Player *p = (Player *)malloc(sizeof(Player));
+  Player *p = (Player *)calloc(1, sizeof(Player));
   if (!p) {
     // handle error will do that later
     return NULL;
@@ -80,7 +80,7 @@ bool canPlayerShoot(Player *player) {
   if (!player)
     return false;
   if (player->shootTimer == 0) {
-    player->shootTimer = COOLDOWN;
+    player->shootTimer = PLAYER_SHOOT_COOLDOWN;
     return true;
   }
   return false;
