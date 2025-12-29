@@ -5,7 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
-// Shared Includes
+// Shared Model Includes
 #include "includes/bunker.h"
 #include "includes/enemy.h"
 #include "includes/explosion.h"
@@ -14,19 +14,31 @@
 #include "includes/player.h"
 #include "includes/projectile.h"
 
-// SDL Specifics
+// SDL Specific Includes
 #include "includes/controller.h"
 #include "includes/sdl_view.h"
 #include <SDL3/SDL.h>
 
-// Ncurses Specifics
+// Ncurses Specific Includes
 #include "includes/ncurses_controller.h"
 #include "includes/ncurses_view.h"
 
+// ==========================================
+//               CONSTANTS
+// ==========================================
 #define GAME_WIDTH 800
 #define GAME_HEIGHT 600
 
-// Helper to reset the game world
+/**
+ * @brief Resets the game state for a replay.
+ * * When the player dies or wins and hits "Enter", this function:
+ * 1. Resets Player position and health.
+ * 2. Destroys the old Swarm and Bullet pool.
+ * 3. Allocates fresh Swarm and Bullets.
+ * 4. Rebuilds the Bunkers.
+ * * @note We use double pointers (Swarm **s) because we are modifying
+ * the pointer itself (re-allocating memory).
+ */
 void resetGameLogic(Player *p, Swarm **s, Projectiles **b, BunkerManager *bk,
                     int *lvl) {
   p->x = GAME_WIDTH / 2.0f;
@@ -34,24 +46,35 @@ void resetGameLogic(Player *p, Swarm **s, Projectiles **b, BunkerManager *bk,
   p->health = 3;
   p->score = 0;
   *lvl = 1;
+
+  // Hard Reset: Destroy old objects, create new ones
   destroySwarm(*s);
   *s = createSwarm(*lvl);
-  if (!s) {
+  if (!*s) {
     exit(EXIT_FAILURE);
   }
+
   destroyProjectiles(*b);
   *b = createProjectiles(MAX_PROJECTILES);
-  if (!b) {
+  if (!*b) {
     exit(EXIT_FAILURE);
   }
+
+  // Restore shields
   resetBunkers(bk, GAME_WIDTH);
 }
 
 // ==========================================
 //              SDL RUNNER
 // ==========================================
+/**
+ * @brief The Main Game Loop for the Graphical (SDL) Mode.
+ * Handles high-performance rendering, audio, and inputs.
+ */
 void runSDL() {
   printf("DEBUG: Initializing SDL View...\n");
+
+  // 1. Initialization Phase
   SDL_Context *view = initSDLView(GAME_WIDTH, GAME_HEIGHT);
   if (!view)
     return;
@@ -62,12 +85,14 @@ void runSDL() {
     return;
   }
   player->y = GAME_HEIGHT - 50;
+
   Swarm *swarm = createSwarm(1);
   if (!swarm) {
     destroyPlayer(player);
     destroySDLView(view);
     return;
   }
+
   Projectiles *bullets = createProjectiles(MAX_PROJECTILES);
   if (!bullets) {
     destroySwarm(swarm);
@@ -75,6 +100,7 @@ void runSDL() {
     destroySDLView(view);
     return;
   }
+
   ExplosionManager *explosions = createExplosionManager();
   if (!explosions) {
     destroyProjectiles(bullets);
@@ -83,6 +109,7 @@ void runSDL() {
     destroySDLView(view);
     return;
   }
+
   BunkerManager *bunkers = createBunkers(GAME_WIDTH);
   if (!bunkers) {
     destroyExplosionManager(explosions);
@@ -92,35 +119,43 @@ void runSDL() {
     destroySDLView(view);
     return;
   }
-  int currentLevel = 1;
 
+  int currentLevel = 1;
   GameState state = STATE_MENU;
   bool isRunning = true;
   bool playerWon = false;
 
+  // Time Management
   unsigned long lastTime = SDL_GetTicks();
 
+  // 2. The Game Loop
   while (isRunning) {
+    // A. Calculate Delta Time
+    // How many seconds passed since the last frame? (e.g., 0.016s for 60FPS)
     unsigned long currentTime = SDL_GetTicks();
     float deltaTime = (currentTime - lastTime) / 1000.0f;
     lastTime = currentTime;
 
-    // 1. INPUT
-    // If you click X, handleInput must return FALSE
+    // B. INPUT
+    // Poll events. If user requests quit (X button), returns false.
     isRunning = handleInput(player, bullets, view, &state);
 
-    // 2. LOGIC
+    // C. UPDATE (Game Logic)
     if (state == STATE_PLAYING) {
+      // Move Entities
       updatePlayer(player, deltaTime, GAME_WIDTH);
       updateProjectiles(bullets, deltaTime, GAME_HEIGHT);
       updateSwarm(swarm, deltaTime, GAME_WIDTH);
       updateExplosions(explosions, deltaTime);
 
+      // AI Logic
       if (enemyAttemptShoot(swarm, bullets, deltaTime))
         playSound(view, SOUND_ENEMY_SHOOT);
 
+      // Collision Logic
       bool hit = false;
       if (checkCollisions(player, swarm, bullets, explosions, bunkers, &hit)) {
+        // Player Died
         playSound(view, SOUND_PLAYER_EXPLOSION);
         state = STATE_GAME_OVER;
         playerWon = false;
@@ -128,12 +163,14 @@ void runSDL() {
       if (hit)
         playSound(view, SOUND_ENEMY_EXPLOSION);
 
+      // Level Progression
       if (isSwarmDestroyed(swarm)) {
         currentLevel++;
         if (currentLevel > 2) {
           playerWon = true;
           state = STATE_GAME_OVER;
         } else {
+          // Next Level: Recreate Swarm, Clear Bullets
           destroySwarm(swarm);
           swarm = createSwarm(currentLevel);
           destroyProjectiles(bullets);
@@ -142,17 +179,19 @@ void runSDL() {
       }
     }
 
-    // 3. RENDER
+    // D. RENDER
     renderSDL(view, player, bullets, swarm, explosions, bunkers, state,
               playerWon);
 
-    // Manual Reset Check
+    // E. RESET CHECK
+    // If we are back in Menu (after Game Over) and player hits Start, reset
+    // logic.
     if (state == STATE_MENU && (player->score > 0 || !player->health)) {
       resetGameLogic(player, &swarm, &bullets, bunkers, &currentLevel);
     }
   }
 
-  // --- DEBUG PRINTS TO PROVE CLEANUP RUNS ---
+  // 3. Cleanup Phase (Prevent Memory Leaks)
   printf("DEBUG: Loop exited. Starting cleanup...\n");
 
   destroySDLView(view);
@@ -168,39 +207,49 @@ void runSDL() {
 // ==========================================
 //            NCURSES RUNNER
 // ==========================================
+/**
+ * @brief The Game Loop for the Terminal (Ncurses) Mode.
+ * Uses POSIX clocks for timing since SDL timing functions aren't available
+ * here.
+ */
 void runNcurses() {
   Ncurses_Context *view = initNcursesView(GAME_WIDTH, GAME_HEIGHT);
   if (!view)
     return;
 
+  // Initialize Entities (Same as SDL)
   Player *player = createPlayer(GAME_WIDTH / 2.0f, 30, 50);
   player->y = GAME_HEIGHT - 50;
   Swarm *swarm = createSwarm(1);
   Projectiles *bullets = createProjectiles(MAX_PROJECTILES);
   ExplosionManager *explosions = createExplosionManager();
   BunkerManager *bunkers = createBunkers(GAME_WIDTH);
-  int currentLevel = 1;
 
+  int currentLevel = 1;
   GameState state = STATE_MENU;
   bool isRunning = true;
   bool playerWon = false;
   bool needsReset = false;
 
+  // POSIX Time Setup
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
   unsigned long lastTime = (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
 
   while (isRunning) {
+    // A. Time Calculation
     clock_gettime(CLOCK_MONOTONIC, &ts);
     unsigned long currentTime = (ts.tv_sec * 1000) + (ts.tv_nsec / 1000000);
     float deltaTime = (currentTime - lastTime) / 1000.0f;
     lastTime = currentTime;
 
-    // 1. INPUT
+    // B. Input
+    // needsReset is a flag passed by reference because Ncurses input is handled
+    // differently
     isRunning =
         handleNcursesInput(player, bullets, &state, &needsReset, deltaTime);
 
-    // 2. LOGIC
+    // C. Logic
     if (state == STATE_PLAYING) {
       if (player->shootTimer > 0.0f) {
         player->shootTimer -= deltaTime;
@@ -217,6 +266,7 @@ void runNcurses() {
         playerWon = false;
       }
 
+      // Level Progression
       if (isSwarmDestroyed(swarm)) {
         currentLevel++;
         if (currentLevel > 2) {
@@ -229,19 +279,26 @@ void runNcurses() {
           bullets = createProjectiles(MAX_PROJECTILES);
         }
       }
-    } else if (state == STATE_MENU && needsReset) {
+    }
+    // Reset Logic specific to Ncurses loop structure
+    else if (state == STATE_MENU && needsReset) {
       resetGameLogic(player, &swarm, &bullets, bunkers, &currentLevel);
       needsReset = false;
       playerWon = false;
     }
 
+    // D. Render
     renderNcurses(view, player, bullets, swarm, explosions, bunkers, state,
                   playerWon);
 
-    struct timespec sleepTs = {0, 15000000};
+    // E. Throttle
+    // Terminals refresh very fast. We sleep briefly to save CPU and reduce
+    // flicker.
+    struct timespec sleepTs = {0, 15000000}; // 15ms
     nanosleep(&sleepTs, NULL);
   }
 
+  // Cleanup
   destroyNcursesView(view);
   destroyPlayer(player);
   destroySwarm(swarm);
@@ -254,12 +311,15 @@ void runNcurses() {
 //               ENTRY POINT
 // ==========================================
 int main(int argc, char *argv[]) {
+  // Seed the random number generator for enemy shooting variation
   srand((unsigned int)time(NULL));
 
+  // Check command line arguments for mode selection
   if (argc > 1 && strcmp(argv[1], "ncurses") == 0) {
     printf("Mode: NCURSES\n");
     runNcurses();
   } else {
+    // Default to SDL (Graphical)
     printf("Mode: SDL\n");
     runSDL();
   }
