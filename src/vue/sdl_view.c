@@ -1,5 +1,5 @@
-#include "../includes/explosion.h"
-#include "../includes/sdl_view.h"
+#include "../../includes/sdl_view.h"
+#include "../../includes/explosion.h"
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <stdio.h>

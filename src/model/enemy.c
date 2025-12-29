@@ -1,4 +1,4 @@
-#include "../includes/enemy.h"
+#include "../../includes/enemy.h"
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>

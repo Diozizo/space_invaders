@@ -6,22 +6,22 @@
 #include <unistd.h>
 
 // Shared Model Includes
-#include "includes/bunker.h"
-#include "includes/enemy.h"
-#include "includes/explosion.h"
-#include "includes/game_state.h"
-#include "includes/physics.h"
-#include "includes/player.h"
-#include "includes/projectile.h"
+#include "../includes/bunker.h"
+#include "../includes/enemy.h"
+#include "../includes/explosion.h"
+#include "../includes/game_state.h"
+#include "../includes/physics.h"
+#include "../includes/player.h"
+#include "../includes/projectile.h"
 
 // SDL Specific Includes
-#include "includes/controller.h"
-#include "includes/sdl_view.h"
+#include "../includes/controller.h"
+#include "../includes/sdl_view.h"
 #include <SDL3/SDL.h>
 
 // Ncurses Specific Includes
-#include "includes/ncurses_controller.h"
-#include "includes/ncurses_view.h"
+#include "../includes/ncurses_controller.h"
+#include "../includes/ncurses_view.h"
 
 // ==========================================
 //               CONSTANTS

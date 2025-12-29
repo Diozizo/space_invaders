@@ -1,4 +1,4 @@
-#include "../includes/controller.h"
+#include "../../includes/controller.h"
 #include <SDL3/SDL.h>
 
 bool handleInput(Player *player, Projectiles *projectiles, SDL_Context *view,

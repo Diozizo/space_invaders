@@ -1,5 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
-#include "../includes/ncurses_view.h"
+#include "../../includes/ncurses_view.h"
 #include <ncurses.h>
 #include <stdlib.h>
 

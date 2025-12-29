@@ -1,4 +1,4 @@
-#include "../includes/ncurses_controller.h"
+#include "../../includes/ncurses_controller.h"
 #include <ncurses.h>
 
 #define NCURSES_SPEED 400.0f // Faster speed for terminal feel

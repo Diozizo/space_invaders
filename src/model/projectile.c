@@ -1,4 +1,4 @@
-#include "../includes/projectile.h"
+#include "../../includes/projectile.h"
 #include <stdlib.h>
 
 Projectiles *createProjectiles(unsigned count) {

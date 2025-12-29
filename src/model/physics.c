@@ -1,5 +1,5 @@
-#include "../includes/physics.h"
-#include "../includes/bunker.h"
+#include "../../includes/physics.h"
+#include "../../includes/bunker.h"
 #include <stdbool.h>
 #include <stdio.h>
 
