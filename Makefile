@@ -1,5 +1,6 @@
 INIT_PATH = $(PWD)
-TARGET_EXEC ?= breakout
+# Ensure this matches your final executable name (spaceinvaders or breakout)
+TARGET_EXEC ?= spaceinvaders
 
 BUILD_DIR ?= build
 SRC_DIRS ?= src
@@ -8,7 +9,7 @@ SRCS := $(shell find $(SRC_DIRS) -name *.c)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
-CPPFLAGS ?= -MMD -MP -g
+CPPFLAGS ?= -MMD -MP -g -D_POSIX_C_SOURCE=200809L
 
 # ---------------- Includes ----------------
 INCLUDE_PATH ?= \
@@ -18,7 +19,8 @@ INCLUDE_PATH ?= \
     -I3rdParty/SDL3_ttf/include \
     -I3rdParty/SDL3_mixer/include \
     -I3rdParty/ncurses/build/include \
-    -I3rdParty/ncurses/build/include/ncursesw
+    -I3rdParty/ncurses/build/include/ncursesw \
+    -I./includes
 
 # ---------------- Library paths ----------------
 LIBRATY_PATH ?= \
@@ -30,7 +32,6 @@ LIBRATY_PATH ?= \
     -L3rdParty/ncurses/build/lib
 
 # ---------------- Linker flags ----------------
-# Added -lncursesw (Wide-char version is standard)
 LDFLAGS ?= \
     -lm \
     -lSDL3 \
@@ -57,9 +58,24 @@ $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(dir $@)
 	@$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDE_PATH) -c $< -o $@
 
-.PHONY: clean
+# ---------------- COMMANDS ----------------
+
+.PHONY: clean run-sdl run-ncurses valgrind all
+
+all: $(BUILD_DIR)/$(TARGET_EXEC)
 
 clean:
 	$(RM) -r $(BUILD_DIR)
+
+run-sdl: $(BUILD_DIR)/$(TARGET_EXEC)
+	./$(BUILD_DIR)/$(TARGET_EXEC) sdl
+
+run-ncurses: $(BUILD_DIR)/$(TARGET_EXEC)
+	./$(BUILD_DIR)/$(TARGET_EXEC) ncurses
+
+# UPDATED: Uses mysuppressions.supp to ignore driver noise
+valgrind: $(BUILD_DIR)/$(TARGET_EXEC)
+	valgrind --leak-check=full --show-leak-kinds=all --suppressions=mysuppressions.supp --log-file=valgrind_report.txt ./$(BUILD_DIR)/$(TARGET_EXEC) sdl
+	@echo "Clean report generated in valgrind_report.txt"
 
 -include $(DEPS)

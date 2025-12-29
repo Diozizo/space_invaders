@@ -1,0 +1,520 @@
+==46793== Memcheck, a memory error detector
+==46793== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==46793== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==46793== Command: ./build/spaceinvaders sdl
+==46793== Parent PID: 46790
+==46793== 
+==46793== 
+==46793== HEAP SUMMARY:
+==46793==     in use at exit: 301,407 bytes in 3,573 blocks
+==46793==   total heap usage: 223,678 allocs, 220,105 frees, 225,524,244 bytes allocated
+==46793== 
+==46793== 16 bytes in 1 blocks are indirectly lost in loss record 10 of 2,735
+==46793==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x58F724F: ???
+==46793==    by 0x58FA2A3: ???
+==46793==    by 0x58FC05A: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x5918D53: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793==    by 0x58E7532: ???
+==46793==    by 0x49EE5FD: X11_GetGlobalContentScale (SDL_x11modes.c:95)
+==46793==    by 0x49EF1C8: X11_GetGlobalContentScaleForDevice (SDL_x11modes.c:144)
+==46793==    by 0x49EF1C8: X11_FillXRandRDisplayInfo.constprop.0 (SDL_x11modes.c:606)
+==46793== 
+==46793== 24 bytes in 1 blocks are still reachable in loss record 45 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x5511962: dbus_threads_init (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2C166: SDL_DBus_Init (SDL_dbus.c:155)
+==46793==    by 0x489C833: SDL_InitSubSystem_REAL.part.0 (SDL.c:332)
+==46793==    by 0x10E15D: initSDLView (sdl_view.c:26)
+==46793==    by 0x10AB65: runSDL (main.c:78)
+==46793==    by 0x10B404: main (main.c:324)
+==46793== 
+==46793== 24 bytes in 1 blocks are still reachable in loss record 46 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x5521D95: _dbus_register_shutdown_func (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF6AD: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2C185: SDL_DBus_Init (SDL_dbus.c:163)
+==46793==    by 0x489C833: SDL_InitSubSystem_REAL.part.0 (SDL.c:332)
+==46793==    by 0x10E15D: initSDLView (sdl_view.c:26)
+==46793==    by 0x10AB65: runSDL (main.c:78)
+==46793==    by 0x10B404: main (main.c:324)
+==46793== 
+==46793== 24 bytes in 1 blocks are still reachable in loss record 47 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x5521D95: _dbus_register_shutdown_func (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550CA45: dbus_message_unref (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5511D6E: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF1B2: dbus_connection_send_with_reply_and_block (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF43B: dbus_bus_register (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF707: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2C185: SDL_DBus_Init (SDL_dbus.c:163)
+==46793==    by 0x489C833: SDL_InitSubSystem_REAL.part.0 (SDL.c:332)
+==46793==    by 0x10E15D: initSDLView (sdl_view.c:26)
+==46793==    by 0x10AB65: runSDL (main.c:78)
+==46793==    by 0x10B404: main (main.c:324)
+==46793== 
+==46793== 29 bytes in 1 blocks are still reachable in loss record 143 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x5519F93: _dbus_strdup (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FFAE7: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2C185: SDL_DBus_Init (SDL_dbus.c:163)
+==46793==    by 0x489C833: SDL_InitSubSystem_REAL.part.0 (SDL.c:332)
+==46793==    by 0x10E15D: initSDLView (sdl_view.c:26)
+==46793==    by 0x10AB65: runSDL (main.c:78)
+==46793==    by 0x10B404: main (main.c:324)
+==46793== 
+==46793== 29 bytes in 1 blocks are still reachable in loss record 144 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x5519F93: _dbus_strdup (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FFAAA: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2C185: SDL_DBus_Init (SDL_dbus.c:163)
+==46793==    by 0x489C833: SDL_InitSubSystem_REAL.part.0 (SDL.c:332)
+==46793==    by 0x10E15D: initSDLView (sdl_view.c:26)
+==46793==    by 0x10AB65: runSDL (main.c:78)
+==46793==    by 0x10B404: main (main.c:324)
+==46793== 
+==46793== 38 bytes in 1 blocks are still reachable in loss record 923 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x5519F93: _dbus_strdup (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF8D9: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2C185: SDL_DBus_Init (SDL_dbus.c:163)
+==46793==    by 0x489C833: SDL_InitSubSystem_REAL.part.0 (SDL.c:332)
+==46793==    by 0x10E15D: initSDLView (sdl_view.c:26)
+==46793==    by 0x10AB65: runSDL (main.c:78)
+==46793==    by 0x10B404: main (main.c:324)
+==46793== 
+==46793== 64 bytes in 2 blocks are still reachable in loss record 2,591 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x4001E04: malloc (rtld-malloc.h:56)
+==46793==    by 0x4001E04: _dl_close_worker.part.0 (dl-close.c:354)
+==46793==    by 0x40027BD: _dl_close_worker (dl-close.c:120)
+==46793==    by 0x40027BD: _dl_close (dl-close.c:793)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4001668: _dl_catch_error (dl-catch.c:256)
+==46793==    by 0x4E07876: dlerror_run (dl-libc.c:45)
+==46793==    by 0x4E07876: __libc_dlclose (dl-libc.c:227)
+==46793==    by 0x4CB987D: do_release_all (gconv_dl.c:194)
+==46793==    by 0x4DAC052: tdestroy_recurse (tsearch.c:766)
+==46793==    by 0x4DAC052: tdestroy (tsearch.c:779)
+==46793==    by 0x4CB9B4A: __gconv_dl_freemem (gconv_dl.c:202)
+==46793==    by 0x4D3322F: __libc_freeres (set-freeres.c:144)
+==46793==    by 0x483D152: _vgnU_freeres (in /usr/libexec/valgrind/vgpreload_core-amd64-linux.so)
+==46793==    by 0x4CCAA35: __run_exit_handlers (exit.c:131)
+==46793== 
+==46793== 70 bytes in 2 blocks are still reachable in loss record 2,657 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x4028ABF: malloc (rtld-malloc.h:56)
+==46793==    by 0x4028ABF: strdup (strdup.c:42)
+==46793==    by 0x4016A95: _dl_load_cache_lookup (dl-cache.c:515)
+==46793==    by 0x40097CA: _dl_map_object (dl-load.c:2135)
+==46793==    by 0x400D8DB: dl_open_worker_begin (dl-open.c:578)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793==    by 0x4D1B1A3: dlopen_doit (dlopen.c:56)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4001668: _dl_catch_error (dl-catch.c:256)
+==46793== 
+==46793== 70 bytes in 2 blocks are still reachable in loss record 2,658 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x400CA68: malloc (rtld-malloc.h:56)
+==46793==    by 0x400CA68: _dl_new_object (dl-object.c:199)
+==46793==    by 0x4007ABE: _dl_map_object_from_fd (dl-load.c:1053)
+==46793==    by 0x4009528: _dl_map_object (dl-load.c:2268)
+==46793==    by 0x400D8DB: dl_open_worker_begin (dl-open.c:578)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793==    by 0x4D1B1A3: dlopen_doit (dlopen.c:56)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4001668: _dl_catch_error (dl-catch.c:256)
+==46793== 
+==46793== 75 bytes in 2 blocks are still reachable in loss record 2,664 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x4028ABF: malloc (rtld-malloc.h:56)
+==46793==    by 0x4028ABF: strdup (strdup.c:42)
+==46793==    by 0x4016A95: _dl_load_cache_lookup (dl-cache.c:515)
+==46793==    by 0x40097CA: _dl_map_object (dl-load.c:2135)
+==46793==    by 0x4002A2C: openaux (dl-deps.c:64)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4002E66: _dl_map_object_deps (dl-deps.c:232)
+==46793==    by 0x400D944: dl_open_worker_begin (dl-open.c:638)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793== 
+==46793== 75 bytes in 2 blocks are still reachable in loss record 2,665 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x400CA68: malloc (rtld-malloc.h:56)
+==46793==    by 0x400CA68: _dl_new_object (dl-object.c:199)
+==46793==    by 0x4007ABE: _dl_map_object_from_fd (dl-load.c:1053)
+==46793==    by 0x4009528: _dl_map_object (dl-load.c:2268)
+==46793==    by 0x4002A2C: openaux (dl-deps.c:64)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4002E66: _dl_map_object_deps (dl-deps.c:232)
+==46793==    by 0x400D944: dl_open_worker_begin (dl-open.c:638)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793== 
+==46793== 120 bytes in 3 blocks are still reachable in loss record 2,675 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x551AE09: _dbus_string_init_preallocated (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550BF74: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550DD6D: _dbus_message_loader_queue_messages (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55168DB: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5516AAF: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5517BE0: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55181CF: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FD391: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551204C: dbus_pending_call_block (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF19D: dbus_connection_send_with_reply_and_block (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF43B: dbus_bus_register (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793== 
+==46793== 142 bytes in 18 blocks are indirectly lost in loss record 2,677 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x58EA5B0: ???
+==46793==    by 0x58EBF54: ???
+==46793==    by 0x58EBFC6: ???
+==46793==    by 0x58F9427: ???
+==46793==    by 0x58FDD0E: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x5918D53: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793== 
+==46793== 184 bytes in 1 blocks are still reachable in loss record 2,686 of 2,735
+==46793==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x550BDDF: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550CBF4: dbus_message_new_method_call (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF41C: dbus_bus_register (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF707: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2C185: SDL_DBus_Init (SDL_dbus.c:163)
+==46793==    by 0x489C833: SDL_InitSubSystem_REAL.part.0 (SDL.c:332)
+==46793==    by 0x10E15D: initSDLView (sdl_view.c:26)
+==46793==    by 0x10AB65: runSDL (main.c:78)
+==46793==    by 0x10B404: main (main.c:324)
+==46793== 
+==46793== 216 bytes in 18 blocks are indirectly lost in loss record 2,693 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x4D3735E: strdup (strdup.c:42)
+==46793==    by 0x58EBCDA: ???
+==46793==    by 0x58EBFC6: ???
+==46793==    by 0x58F9427: ???
+==46793==    by 0x58FDD0E: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x5918D53: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793== 
+==46793== 223 bytes in 1 blocks are still reachable in loss record 2,694 of 2,735
+==46793==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x551A075: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551A104: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551BB7B: _dbus_string_copy_len (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551E076: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5508CA3: _dbus_type_writer_write_basic (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550C5B9: dbus_message_iter_append_basic (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550D160: dbus_message_new_error (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FEDBC: dbus_connection_send_with_reply (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF183: dbus_connection_send_with_reply_and_block (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF43B: dbus_bus_register (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF707: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793== 
+==46793== 223 bytes in 1 blocks are still reachable in loss record 2,695 of 2,735
+==46793==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x551A075: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551A104: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551BB7B: _dbus_string_copy_len (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551E076: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5508CA3: _dbus_type_writer_write_basic (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550C5B9: dbus_message_iter_append_basic (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550D160: dbus_message_new_error (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FEDBC: dbus_connection_send_with_reply (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF183: dbus_connection_send_with_reply_and_block (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2DCBF: SDL_SystemTheme_Init (SDL_system_theme.c:125)
+==46793==    by 0x49F9AFE: X11_CreateDevice (SDL_x11video.c:254)
+==46793== 
+==46793== 274 bytes in 18 blocks are indirectly lost in loss record 2,696 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x4D3735E: strdup (strdup.c:42)
+==46793==    by 0x58EBECD: ???
+==46793==    by 0x58EBFC6: ???
+==46793==    by 0x58F9427: ???
+==46793==    by 0x58FDD0E: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x5918D53: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793== 
+==46793== 288 bytes in 18 blocks are indirectly lost in loss record 2,698 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x58EA58D: ???
+==46793==    by 0x58EBF54: ???
+==46793==    by 0x58EBFC6: ???
+==46793==    by 0x58F9427: ???
+==46793==    by 0x58FDD0E: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x5918D53: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793== 
+==46793== 320 bytes in 1 blocks are still reachable in loss record 2,699 of 2,735
+==46793==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x551B2CC: _dbus_string_lengthen (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5508713: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5508AC1: _dbus_type_writer_recurse (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5508EDA: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55093DA: _dbus_header_set_field_basic (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5509553: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550C5C4: dbus_message_iter_append_basic (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550D9F7: dbus_message_append_args_valist (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550DC3E: dbus_message_append_args (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550087D: dbus_bus_add_match (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2DC63: SDL_SystemTheme_Init (SDL_system_theme.c:143)
+==46793== 
+==46793== 352 bytes in 1 blocks are still reachable in loss record 2,701 of 2,735
+==46793==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x551B2CC: _dbus_string_lengthen (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5508713: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5508AC1: _dbus_type_writer_recurse (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5508EDA: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55093DA: _dbus_header_set_field_basic (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5509553: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550C5C4: dbus_message_iter_append_basic (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550D9F7: dbus_message_append_args_valist (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550DC3E: dbus_message_append_args (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2DC47: SDL_SystemTheme_Init (SDL_system_theme.c:124)
+==46793==    by 0x49F9AFE: X11_CreateDevice (SDL_x11video.c:254)
+==46793== 
+==46793== 424 bytes in 3 blocks are still reachable in loss record 2,702 of 2,735
+==46793==    at 0x484DB80: realloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x551A075: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551A104: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551BB7B: _dbus_string_copy_len (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55231E6: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550DDB1: _dbus_message_loader_queue_messages (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55168DB: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5516AAF: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5517BE0: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55181CF: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FD391: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551204C: dbus_pending_call_block (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793== 
+==46793== 520 bytes in 13 blocks are still reachable in loss record 2,704 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x551DC8B: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5511934: dbus_threads_init (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x4A2C166: SDL_DBus_Init (SDL_dbus.c:155)
+==46793==    by 0x489C833: SDL_InitSubSystem_REAL.part.0 (SDL.c:332)
+==46793==    by 0x10E15D: initSDLView (sdl_view.c:26)
+==46793==    by 0x10AB65: runSDL (main.c:78)
+==46793==    by 0x10B404: main (main.c:324)
+==46793== 
+==46793== 633 bytes in 49 blocks are indirectly lost in loss record 2,705 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x58F18A5: ???
+==46793==    by 0x58F1C62: ???
+==46793==    by 0x58F1E0F: ???
+==46793==    by 0x58FDBD5: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x591AE39: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793==    by 0x58E7532: ???
+==46793== 
+==46793== 720 bytes in 18 blocks are indirectly lost in loss record 2,706 of 2,735
+==46793==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x58EBCC2: ???
+==46793==    by 0x58EBFC6: ???
+==46793==    by 0x58F9427: ???
+==46793==    by 0x58FDD0E: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x5918D53: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793==    by 0x58E7532: ???
+==46793== 
+==46793== 736 bytes in 4 blocks are still reachable in loss record 2,707 of 2,735
+==46793==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x550BDDF: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x550DD6D: _dbus_message_loader_queue_messages (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55168DB: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5516AAF: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x5517BE0: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x55181CF: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FD391: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x551204C: dbus_pending_call_block (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF19D: dbus_connection_send_with_reply_and_block (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF43B: dbus_bus_register (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793==    by 0x54FF707: ??? (in /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.32.4)
+==46793== 
+==46793== 800 bytes in 50 blocks are indirectly lost in loss record 2,709 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x58F1751: ???
+==46793==    by 0x58F1C72: ???
+==46793==    by 0x58F1E0F: ???
+==46793==    by 0x58FDBD5: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x591AE39: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793==    by 0x58E7532: ???
+==46793== 
+==46793== 912 bytes in 1 blocks are still reachable in loss record 2,711 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x400CF3F: malloc (rtld-malloc.h:56)
+==46793==    by 0x400CF3F: add_to_global_resize (dl-open.c:152)
+==46793==    by 0x400E186: dl_open_worker_begin (dl-open.c:608)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793==    by 0x4D1B1A3: dlopen_doit (dlopen.c:56)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4001668: _dl_catch_error (dl-catch.c:256)
+==46793==    by 0x4D1AC82: _dlerror_run (dlerror.c:138)
+==46793==    by 0x4D1B25E: dlopen_implementation (dlopen.c:71)
+==46793==    by 0x4D1B25E: dlopen@@GLIBC_2.34 (dlopen.c:81)
+==46793== 
+==46793== 1,028 bytes in 50 blocks are indirectly lost in loss record 2,712 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x58F1830: ???
+==46793==    by 0x58F1C62: ???
+==46793==    by 0x58F1E0F: ???
+==46793==    by 0x58FDBD5: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x591AE39: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793==    by 0x58E7532: ???
+==46793== 
+==46793== 2,506 bytes in 2 blocks are still reachable in loss record 2,721 of 2,735
+==46793==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x400C72C: calloc (rtld-malloc.h:44)
+==46793==    by 0x400C72C: _dl_new_object (dl-object.c:92)
+==46793==    by 0x4007ABE: _dl_map_object_from_fd (dl-load.c:1053)
+==46793==    by 0x4009528: _dl_map_object (dl-load.c:2268)
+==46793==    by 0x400D8DB: dl_open_worker_begin (dl-open.c:578)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793==    by 0x4D1B1A3: dlopen_doit (dlopen.c:56)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4001668: _dl_catch_error (dl-catch.c:256)
+==46793== 
+==46793== 2,511 bytes in 2 blocks are still reachable in loss record 2,722 of 2,735
+==46793==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x400C72C: calloc (rtld-malloc.h:44)
+==46793==    by 0x400C72C: _dl_new_object (dl-object.c:92)
+==46793==    by 0x4007ABE: _dl_map_object_from_fd (dl-load.c:1053)
+==46793==    by 0x4009528: _dl_map_object (dl-load.c:2268)
+==46793==    by 0x4002A2C: openaux (dl-deps.c:64)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4002E66: _dl_map_object_deps (dl-deps.c:232)
+==46793==    by 0x400D944: dl_open_worker_begin (dl-open.c:638)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793== 
+==46793== 3,528 bytes in 4 blocks are still reachable in loss record 2,725 of 2,735
+==46793==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x401622F: calloc (rtld-malloc.h:44)
+==46793==    by 0x401622F: _dl_check_map_versions (dl-version.c:280)
+==46793==    by 0x400DC7C: dl_open_worker_begin (dl-open.c:646)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793==    by 0x4D1B1A3: dlopen_doit (dlopen.c:56)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4001668: _dl_catch_error (dl-catch.c:256)
+==46793==    by 0x4D1AC82: _dlerror_run (dlerror.c:138)
+==46793==    by 0x4D1B25E: dlopen_implementation (dlopen.c:71)
+==46793==    by 0x4D1B25E: dlopen@@GLIBC_2.34 (dlopen.c:81)
+==46793== 
+==46793== 3,600 bytes in 50 blocks are indirectly lost in loss record 2,726 of 2,735
+==46793==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x58F1800: ???
+==46793==    by 0x58F1C62: ???
+==46793==    by 0x58F1E0F: ???
+==46793==    by 0x58FDBD5: ???
+==46793==    by 0x58FC04E: ???
+==46793==    by 0x58F8C3D: ???
+==46793==    by 0x591AE39: ???
+==46793==    by 0x58FD130: ???
+==46793==    by 0x58FDB76: ???
+==46793==    by 0x58E70AF: ???
+==46793==    by 0x58E7532: ???
+==46793== 
+==46793== 4,064 bytes in 1 blocks are still reachable in loss record 2,727 of 2,735
+==46793==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x400AD95: calloc (rtld-malloc.h:44)
+==46793==    by 0x400AD95: do_lookup_unique (dl-lookup.c:271)
+==46793==    by 0x400AD95: do_lookup_x (dl-lookup.c:504)
+==46793==    by 0x400B1FB: _dl_lookup_symbol_x (dl-lookup.c:792)
+==46793==    by 0x400FAE2: resolve_map (dl-reloc.c:190)
+==46793==    by 0x400FAE2: elf_machine_rela (dl-machine.h:285)
+==46793==    by 0x400FAE2: elf_dynamic_do_Rela (do-rel.h:147)
+==46793==    by 0x400FAE2: _dl_relocate_object (dl-reloc.c:301)
+==46793==    by 0x400DB15: _dl_open_relocate_one_object (dl-open.c:478)
+==46793==    by 0x400DB15: dl_open_worker_begin (dl-open.c:723)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400CD1F: dl_open_worker (dl-open.c:803)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793==    by 0x4D1B1A3: dlopen_doit (dlopen.c:56)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4001668: _dl_catch_error (dl-catch.c:256)
+==46793== 
+==46793== 73,728 bytes in 1 blocks are still reachable in loss record 2,735 of 2,735
+==46793==    at 0x4846828: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==46793==    by 0x14A3738E: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33)
+==46793==    by 0x400571E: call_init.part.0 (dl-init.c:74)
+==46793==    by 0x4005823: call_init (dl-init.c:120)
+==46793==    by 0x4005823: _dl_init (dl-init.c:121)
+==46793==    by 0x40015B1: _dl_catch_exception (dl-catch.c:211)
+==46793==    by 0x400CD7B: dl_open_worker (dl-open.c:829)
+==46793==    by 0x400CD7B: dl_open_worker (dl-open.c:792)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x400D163: _dl_open (dl-open.c:905)
+==46793==    by 0x4D1B1A3: dlopen_doit (dlopen.c:56)
+==46793==    by 0x400151B: _dl_catch_exception (dl-catch.c:237)
+==46793==    by 0x4001668: _dl_catch_error (dl-catch.c:256)
+==46793==    by 0x4D1AC82: _dlerror_run (dlerror.c:138)
+==46793== 
+==46793== LEAK SUMMARY:
+==46793==    definitely lost: 0 bytes in 0 blocks
+==46793==    indirectly lost: 7,717 bytes in 290 blocks
+==46793==      possibly lost: 0 bytes in 0 blocks
+==46793==    still reachable: 90,873 bytes in 55 blocks
+==46793==         suppressed: 202,817 bytes in 3,228 blocks
+==46793== 
+==46793== For lists of detected and suppressed errors, rerun with: -s
+==46793== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 11 from 11)

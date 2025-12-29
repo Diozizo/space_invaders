@@ -1,44 +1,60 @@
 ##########################################
-##		PRE-REQUIS		##
+##              PRE-REQUIS              ##
 ##########################################
 
-Paquets sources dans le dossier "3rdParty" :
-- SDL3_gfx-1.0.1
-- SDL3_image-3.2.4
-- SDL3-3.2.24
+1. Dossier "3rdParty" :
+   S'assurer que les dossiers sources des librairies 
+   (SDL3, SDL3_image, SDL3_mixer, SDL3_ttf, SDL3_gfx, ncurses) 
+   sont présents dans le dossier "3rdParty".
 
-S'assurer d'avoir les droits d'exécution
-pour les scripts projet (chmod u+x <fichier>) :
-- clean.sh
-- build.sh
+2. Outils système :
+   Vous devez avoir 'gcc', 'make' et 'cmake' installés 
+   sur votre machine.
 
-/!\ Attention, la librairie "SDL3_gfx" fournie
-ici ne possède pas le même contenu pour le
-fichier "CMakeLists.txt" que dans le dépôt git
-associé pour la version 1.0.1.
-
-##########################################
-##		COMPILATION		##
-##########################################
-
-Il faut compiler les librairies SDL3 dans
-le dossier "3rdParty". Si ce n'est pas déjà
-fait, il est mieux de nettoyer les précédentes
-compilations avec l'exécutable "clean.sh".
-
-Ensuite, la compilation se fera avec le
-script "build.sh".
+3. Droits d'exécution :
+   Donnez les droits d'exécution aux scripts du projet 
+   via le terminal :
+   
+   chmod u+x clean.sh build.sh
 
 ##########################################
-##              LANCEMENT	        ##
+##             COMPILATION              ##
 ##########################################
 
-L'exécutable produit avec la commande "make"
-exécuté par le script "build.sh" précédemment
-se trouve dans le dossier "build" et se nomme
-"breakout".
+Le projet utilise un script automatisé qui compile d'abord
+les librairies tierces (dans 3rdParty) puis lance le Makefile
+pour compiler le jeu.
 
-Les instructions d'exécution sont les suivantes
-en étant à la racine du projet :
+Pour compiler l'intégralité du projet, lancez simplement :
 
-./build/breakout
+   ./build.sh
+
+Une fois terminé, l'exécutable sera généré dans le dossier "build".
+
+##########################################
+##              LANCEMENT               ##
+##########################################
+
+L'exécutable se nomme "spaceinvaders".
+
+Il supporte deux modes de lancement (Graphique ou Texte).
+Depuis la racine du projet :
+
+1. Mode Graphique (SDL3) :
+   ./build/spaceinvaders sdl
+
+2. Mode Texte (Ncurses) :
+   ./build/spaceinvaders ncurses
+
+Note : Si vous rencontrez une erreur de librairie partagée (.so),
+assurez-vous d'avoir bien utilisé le script build.sh.
+
+##########################################
+##              NETTOYAGE               ##
+##########################################
+
+Pour supprimer tous les fichiers objets, les binaires compilés
+et nettoyer les compilations des librairies tierces pour
+repartir de zéro :
+
+   ./clean.sh
