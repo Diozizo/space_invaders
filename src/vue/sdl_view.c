@@ -1,5 +1,5 @@
-#include "../includes/sdl_view.h"
 #include "../includes/explosion.h"
+#include "../includes/sdl_view.h"
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <stdio.h>
@@ -87,44 +87,43 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
   ctx->screenHeight = LOGICAL_HEIGHT;
 
   // --- 4. Load Fonts & Textures ---
-  ctx->font = TTF_OpenFont("src/assets/font.ttf", 24);
+  ctx->font = TTF_OpenFont("assets/font.ttf", 24);
   if (!ctx->font) {
     printf("WARNING: Failed to load font: %s\n", SDL_GetError());
   }
 
-  ctx->backgroundTexture =
-      loadTexture(ctx->renderer, "src/assets/background.png");
-  ctx->playerTexture = loadTexture(ctx->renderer, "src/assets/player.png");
-  ctx->enemyTexture1 = loadTexture(ctx->renderer, "src/assets/alien_1.png");
-  ctx->enemyTexture2 = loadTexture(ctx->renderer, "src/assets/alien_2.png");
+  ctx->backgroundTexture = loadTexture(ctx->renderer, "assets/background.png");
+  ctx->playerTexture = loadTexture(ctx->renderer, "assets/player.png");
+  ctx->enemyTexture1 = loadTexture(ctx->renderer, "assets/alien_1.png");
+  ctx->enemyTexture2 = loadTexture(ctx->renderer, "assets/alien_2.png");
   ctx->playerProjectileTexture =
-      loadTexture(ctx->renderer, "src/assets/bullet_1.png");
+      loadTexture(ctx->renderer, "assets/bullet_1.png");
   ctx->enemyProjectileTexture =
-      loadTexture(ctx->renderer, "src/assets/bullet_2.png");
+      loadTexture(ctx->renderer, "assets/bullet_2.png");
 
   // Load Animation Frames (Arrays)
   ctx->exhaustTexture[0] =
-      loadTexture(ctx->renderer, "src/assets/player_fire_1.png");
+      loadTexture(ctx->renderer, "assets/player_fire_1.png");
   ctx->exhaustTexture[1] =
-      loadTexture(ctx->renderer, "src/assets/player_fire_2.png");
+      loadTexture(ctx->renderer, "assets/player_fire_2.png");
   ctx->exhaustTexture[2] =
-      loadTexture(ctx->renderer, "src/assets/player_fire_3.png");
+      loadTexture(ctx->renderer, "assets/player_fire_3.png");
   ctx->exhaustTexture[3] =
-      loadTexture(ctx->renderer, "src/assets/player_fire_4.png");
+      loadTexture(ctx->renderer, "assets/player_fire_4.png");
 
-  ctx->bunkerTexture = loadTexture(ctx->renderer, "src/assets/bunker.png");
-  ctx->bossTexture = loadTexture(ctx->renderer, "src/assets/boss.png");
+  ctx->bunkerTexture = loadTexture(ctx->renderer, "assets/bunker.png");
+  ctx->bossTexture = loadTexture(ctx->renderer, "assets/boss.png");
 
   ctx->explosionTextures[0] =
-      loadTexture(ctx->renderer, "src/assets/explosion_1.png");
+      loadTexture(ctx->renderer, "assets/explosion_1.png");
   ctx->explosionTextures[1] =
-      loadTexture(ctx->renderer, "src/assets/explosion_2.png");
+      loadTexture(ctx->renderer, "assets/explosion_2.png");
   ctx->explosionTextures[2] =
-      loadTexture(ctx->renderer, "src/assets/explosion_3.png");
+      loadTexture(ctx->renderer, "assets/explosion_3.png");
 
   // --- 5. Load Audio ---
   ctx->backgroundMusic =
-      MIX_LoadAudio(ctx->mixer, "src/assets/melody.wav", false); // Streamed
+      MIX_LoadAudio(ctx->mixer, "assets/melody.wav", false); // Streamed
 
   if (!ctx->backgroundMusic) {
     printf("Failed to load melody.wav: %s\n", SDL_GetError());
@@ -144,14 +143,13 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
     }
 
     // Load Sound Effects (Memory Chunks)
-    ctx->sfxPlayerShoot =
-        MIX_LoadAudio(ctx->mixer, "src/assets/shoot.wav", true);
+    ctx->sfxPlayerShoot = MIX_LoadAudio(ctx->mixer, "assets/shoot.wav", true);
     ctx->sfxEnemyShoot =
-        MIX_LoadAudio(ctx->mixer, "src/assets/enemy_shoot.wav", true);
+        MIX_LoadAudio(ctx->mixer, "assets/enemy_shoot.wav", true);
     ctx->sfxEnemyExplosion =
-        MIX_LoadAudio(ctx->mixer, "src/assets/explosion.wav", true);
+        MIX_LoadAudio(ctx->mixer, "assets/explosion.wav", true);
     ctx->sfxPlayerExplosion =
-        MIX_LoadAudio(ctx->mixer, "src/assets/player_explosion.wav", true);
+        MIX_LoadAudio(ctx->mixer, "assets/player_explosion.wav", true);
   }
 
   // Safety Check
