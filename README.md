@@ -13,19 +13,21 @@
 
  ### 1. Le Modèle (`src/model/`)
  Contient toute la logique métier et les données du jeu. Il est totalement indépendant de l'affichage.
- * **Entités :** Gestion du `Player`, `Swarm` (Ennemis/Boss), `Projectiles`, `Bunker`.
- * **Physique :** Détection des collisions (AABB), mouvement des entités, calcul des trajectoires.
- * **État :** Gestion du score, des vies, et des états du jeu (Menu, Jeu, Game Over).
+ * **Player :** Gestion des coordonnées du vaisseau, des **points de vie (PV)**, du **score courant** et du meilleur score (High Score).
+ * **Swarm (Essaim) :** Gestion centralisée des ennemis, de leurs mouvements de groupe, et de l'intelligence artificielle du **Boss**.
+ * **Projectiles :** Utilisation d'un **Object Pool** (mémoire pré-allouée) pour gérer les tirs du joueur et des ennemis sans allocations dynamiques constantes.
+ * **Bunkers :** Gestion des boucliers destructibles pixel par pixel (ou bloc par bloc).
+ * **Game State :** Machine à états finis gérant la phase active du jeu (Menu, Jeu, Pause, Game Over) et la transition de niveaux.
 
  ### 2. La Vue (`src/view/`)
  Responsable uniquement de l'affichage. Elle ne modifie jamais les données du modèle.
- * **Vue SDL (`sdl_view.c`) :** Charge les textures, joue les sons et dessine les sprites à l'écran.
- * **Vue Ncurses (`ncurses_view.c`) :** Convertit les coordonnées du jeu en grille de caractères ASCII pour le terminal.
+ * **Vue SDL (`sdl_view.c`) :** Charge les textures, joue les sons, affiche le HUD et dessine les sprites à l'écran.
+ * **Vue Ncurses (`ncurses_view.c`) :** Convertit les coordonnées flottantes du jeu en grille de caractères ASCII pour le terminal.
 
  ### 3. Le Contrôleur (`src/controller/`)
  Gère les entrées utilisateur et met à jour le modèle.
  * Capture les événements (Clavier, Fenêtre).
- * Traduit les touches (ex: Flèche Gauche) en actions abstraites (`MOVE_LEFT`).
+ * Traduit les touches (ex: Flèche Gauche) en actions abstraites (`MOVE_LEFT`) pour le modèle.
 
  ---
 
@@ -107,7 +109,7 @@
  | | `ESPACE` | Tirer |
  | | `P` | Mettre en Pause / Reprendre |
  | | `ESC` | Abandonner (Retour Menu) |
- | **Game Over** | `ENTRÉE` | Retour au Menu |
+ | **Game Over** | `ENTRÉE` | Retour au Menu (Sauvegarde le score) |
 
  ---
 
@@ -123,12 +125,12 @@
 
  ---
 
- ## Fonctionnalités
+ ## Fonctionnalités Techniques
 
- * **Niveaux progressifs :** Vagues d'ennemis classiques, puis apparition d'un Boss au niveau 2.
- * **Système de Boss :** Le boss possède une barre de vie, des mouvements et des patterns de tir uniques.
+ * **Game Loop & Delta Time :** Le jeu utilise un pas de temps variable (Delta Time) pour la physique, mais impose une limite de **60 FPS** pour garantir une vitesse constante sur toutes les machines.
+ * **Système de Boss :** Apparition d'un Boss au niveau 2 avec barre de vie et comportement spécifique.
  * **Audio (SDL) :** Musique de fond, bruitages de tir et d'explosion (via SDL_mixer).
- * **Persistance :** Sauvegarde automatique du meilleur score (High Score) dans un fichier local.
+ * **Persistance (I/O) :** Sauvegarde automatique du meilleur score dans un fichier texte local (`highscore.txt`).
  * **Animations :** Sprites animés pour les ennemis et effets de particules pour le moteur du joueur.
 
  ---
