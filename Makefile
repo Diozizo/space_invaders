@@ -1,5 +1,4 @@
 INIT_PATH = $(PWD)
-# Ensure this matches your final executable name (spaceinvaders or breakout)
 TARGET_EXEC ?= spaceinvaders
 
 BUILD_DIR ?= build
