@@ -74,6 +74,8 @@ SDL_Context *initSDLView(unsigned windowWidth, unsigned windowHeight) {
     return NULL;
   }
 
+  SDL_SetRenderVSync(ctx->renderer, 1);
+
   // --- 3. Setup Logical Scaling ---
   // This is critical: We tell SDL to treat the window as 800x600 logical units,
   // regardless of the actual window size (e.g., 1920x1080).

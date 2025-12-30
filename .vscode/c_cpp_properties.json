@@ -3,8 +3,8 @@
     {
       "name": "Linux",
       "includePath": [
-        "${workspaceFolder}/src",
-        "${workspaceFolder}/3rdParty/SDL3-3.2.24/include",
+        "${workspaceFolder}",
+        "${workspaceFolder}/3rdParty/SDL3/include",
         "${workspaceFolder}/3rdParty/SDL3_image-3.2.4/include",
         "${workspaceFolder}/3rdParty/SDL3_ttf/include",
         "${workspaceFolder}/3rdParty/SDL3_mixer/include"

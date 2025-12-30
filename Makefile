@@ -1,5 +1,5 @@
 INIT_PATH = $(PWD)
-# Ensure this matches your final executable name (spaceinvaders or breakout)
+
 TARGET_EXEC ?= spaceinvaders
 
 BUILD_DIR ?= build
@@ -73,7 +73,7 @@ run-sdl: $(BUILD_DIR)/$(TARGET_EXEC)
 run-ncurses: $(BUILD_DIR)/$(TARGET_EXEC)
 	./$(BUILD_DIR)/$(TARGET_EXEC) ncurses
 
-# UPDATED: Uses mysuppressions.supp to ignore driver noise
+# ---------------- VALGRIND SDL REPORT ----------------
 valgrind: $(BUILD_DIR)/$(TARGET_EXEC)
 	valgrind --leak-check=full --show-leak-kinds=all --suppressions=mysuppressions.supp --log-file=valgrind_report.txt ./$(BUILD_DIR)/$(TARGET_EXEC) sdl
 	@echo "Clean report generated in valgrind_report.txt"

@@ -28,6 +28,8 @@
 // ==========================================
 #define GAME_WIDTH 800
 #define GAME_HEIGHT 600
+#define FPS 60
+#define FRAME_DELAY (1000 / FPS) // Target duration per frame (~16ms)
 
 /**
  * @brief Resets the game state for a replay.
@@ -72,8 +74,6 @@ void resetGameLogic(Player *p, Swarm **s, Projectiles **b, BunkerManager *bk,
  * Handles high-performance rendering, audio, and inputs.
  */
 void runSDL() {
-  printf("DEBUG: Initializing SDL View...\n");
-
   // 1. Initialization Phase
   SDL_Context *view = initSDLView(GAME_WIDTH, GAME_HEIGHT);
   if (!view)
@@ -125,11 +125,17 @@ void runSDL() {
   bool isRunning = true;
   bool playerWon = false;
 
-  // Time Management
+  // Time Management for Delta Time
   unsigned long lastTime = SDL_GetTicks();
+
+  // Time Management for Frame Capping
+  Uint32 frameStart;
+  int frameTime;
 
   // 2. The Game Loop
   while (isRunning) {
+    frameStart = SDL_GetTicks(); // Record the start of this frame
+
     // A. Calculate Delta Time
     // How many seconds passed since the last frame? (e.g., 0.016s for 60FPS)
     unsigned long currentTime = SDL_GetTicks();
@@ -184,15 +190,21 @@ void runSDL() {
               playerWon);
 
     // E. RESET CHECK
-    // If we are back in Menu (after Game Over) and player hits Start, reset
-    // logic.
     if (state == STATE_MENU && (player->score > 0 || !player->health)) {
       resetGameLogic(player, &swarm, &bullets, bunkers, &currentLevel);
+    }
+
+    // F. FRAME CAPPING (Force 60 FPS)
+    frameTime = SDL_GetTicks() - frameStart; // How long did this frame take?
+
+    if (FRAME_DELAY > frameTime) {
+      // Wait for the remaining time to reach ~16.6ms
+      SDL_Delay(FRAME_DELAY - frameTime);
     }
   }
 
   // 3. Cleanup Phase (Prevent Memory Leaks)
-  printf("DEBUG: Loop exited. Starting cleanup...\n");
+  printf("Loop exited. Starting cleanup...\n");
 
   destroySDLView(view);
   destroyPlayer(player);
@@ -201,7 +213,7 @@ void runSDL() {
   destroyExplosionManager(explosions);
   destroyBunkers(bunkers);
 
-  printf("DEBUG: Cleanup finished successfully.\n");
+  printf("Cleanup finished successfully.\n");
 }
 
 // ==========================================
