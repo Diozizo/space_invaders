@@ -15,7 +15,7 @@
 #include "../includes/projectile.h"
 
 // SDL Specific Includes
-#include "../includes/controller.h"
+#include "../includes/sdl_controller.h"
 #include "../includes/sdl_view.h"
 #include <SDL3/SDL.h>
 
