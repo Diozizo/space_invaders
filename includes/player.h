@@ -66,14 +66,16 @@ typedef struct _player {
   float velocityX; /**< Current horizontal speed vector (pixels/sec). */
 
   // --- Gameplay State ---
-  float shootTimer; /**< Countdown timer for reloading. 0.0f means Ready. */
-  unsigned health;  /**< Current lives remaining. Game Over if 0. */
-  unsigned score;   /**< Current score accumulated in this session. */
+  float shootTimer;   /**< Countdown timer for reloading. 0.0f means Ready. */
+  unsigned health;    /**< Current lives remaining. Game Over if 0. */
+  unsigned score;     /**< Current score accumulated in this session. */
+  unsigned highScore; /**< All-time high score loaded from storage. */
 
   // --- Animation State ---
   float animTimer; /**< Timer to toggle sprite frames. */
   int animFrame;   /**< Current frame index (for sprite sheet rendering). */
   int animDir;     /**< Direction of animation playback. */
+
 } Player;
 
 // ==========================================

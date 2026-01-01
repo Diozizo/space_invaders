@@ -482,6 +482,7 @@ void renderSDL(SDL_Context *ctx, const Player *player,
   SDL_Color yellow = {255, 255, 0, 255};
   SDL_Color red = {255, 0, 0, 255};
   SDL_Color green = {0, 255, 0, 255};
+  SDL_Color cyan = {0, 255, 255, 255}; // New Color for High Score
 
   if (gameState == STATE_MENU) {
     // Semi-transparent black overlay
@@ -490,8 +491,15 @@ void renderSDL(SDL_Context *ctx, const Player *player,
     SDL_RenderFillRect(ctx->renderer, NULL);
 
     renderText(ctx, "SPACE INVADERS", 150, yellow);
-    renderText(ctx, "Press ENTER to Start", 300, white);
-    renderText(ctx, "Press ESC to Quit", 350, white);
+
+    // --- HIGH SCORE DISPLAY ---
+    char hsBuffer[64];
+    snprintf(hsBuffer, sizeof(hsBuffer), "HIGH SCORE: %05d", player->highScore);
+    renderText(ctx, hsBuffer, 230, cyan);
+    // --------------------------
+
+    renderText(ctx, "Press ENTER to Start", 350, white);
+    renderText(ctx, "Press ESC to Quit", 400, white);
   } else if (gameState == STATE_PAUSED) {
     SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(ctx->renderer, 0, 0, 0, 100);

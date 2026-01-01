@@ -13,6 +13,7 @@
 #include "../includes/physics.h"
 #include "../includes/player.h"
 #include "../includes/projectile.h"
+#include "../includes/storage.h"
 
 // SDL Specific Includes
 #include "../includes/sdl_controller.h"
@@ -47,6 +48,7 @@ void resetGameLogic(Player *p, Swarm **s, Projectiles **b, BunkerManager *bk,
   p->y = GAME_HEIGHT - 50;
   p->health = 3;
   p->score = 0;
+  // Note: We do NOT reset p->highScore here, it persists across replays.
   *lvl = 1;
 
   // Hard Reset: Destroy old objects, create new ones
@@ -85,6 +87,10 @@ void runSDL() {
     return;
   }
   player->y = GAME_HEIGHT - 50;
+
+  // --- ADDED: Load High Score from JSON ---
+  player->highScore = loadHighScore();
+  // ----------------------------------------
 
   Swarm *swarm = createSwarm(1);
   if (!swarm) {
@@ -137,32 +143,35 @@ void runSDL() {
     frameStart = SDL_GetTicks(); // Record the start of this frame
 
     // A. Calculate Delta Time
-    // How many seconds passed since the last frame? (e.g., 0.016s for 60FPS)
     unsigned long currentTime = SDL_GetTicks();
     float deltaTime = (currentTime - lastTime) / 1000.0f;
     lastTime = currentTime;
 
     // B. INPUT
-    // Poll events. If user requests quit (X button), returns false.
     isRunning = handleInput(player, bullets, view, &state);
 
     // C. UPDATE (Game Logic)
     if (state == STATE_PLAYING) {
-      // Move Entities
       updatePlayer(player, deltaTime, GAME_WIDTH);
       updateProjectiles(bullets, deltaTime, GAME_HEIGHT);
       updateSwarm(swarm, deltaTime, GAME_WIDTH);
       updateExplosions(explosions, deltaTime);
 
-      // AI Logic
       if (enemyAttemptShoot(swarm, bullets, deltaTime))
         playSound(view, SOUND_ENEMY_SHOOT);
 
-      // Collision Logic
       bool hit = false;
       if (checkCollisions(player, swarm, bullets, explosions, bunkers, &hit)) {
         // Player Died
         playSound(view, SOUND_PLAYER_EXPLOSION);
+
+        // --- ADDED: Save High Score on Death ---
+        if (player->score > player->highScore) {
+          player->highScore = player->score;
+          saveHighScore(player->score);
+        }
+        // ---------------------------------------
+
         state = STATE_GAME_OVER;
         playerWon = false;
       }
@@ -174,9 +183,16 @@ void runSDL() {
         currentLevel++;
         if (currentLevel > 2) {
           playerWon = true;
+
+          // --- ADDED: Save High Score on Win ---
+          if (player->score > player->highScore) {
+            player->highScore = player->score;
+            saveHighScore(player->score);
+          }
+          // -------------------------------------
+
           state = STATE_GAME_OVER;
         } else {
-          // Next Level: Recreate Swarm, Clear Bullets
           destroySwarm(swarm);
           swarm = createSwarm(currentLevel);
           destroyProjectiles(bullets);
@@ -195,15 +211,13 @@ void runSDL() {
     }
 
     // F. FRAME CAPPING (Force 60 FPS)
-    frameTime = SDL_GetTicks() - frameStart; // How long did this frame take?
-
+    frameTime = SDL_GetTicks() - frameStart;
     if (FRAME_DELAY > frameTime) {
-      // Wait for the remaining time to reach ~16.6ms
       SDL_Delay(FRAME_DELAY - frameTime);
     }
   }
 
-  // 3. Cleanup Phase (Prevent Memory Leaks)
+  // 3. Cleanup Phase
   printf("Loop exited. Starting cleanup...\n");
 
   destroySDLView(view);
@@ -221,17 +235,19 @@ void runSDL() {
 // ==========================================
 /**
  * @brief The Game Loop for the Terminal (Ncurses) Mode.
- * Uses POSIX clocks for timing since SDL timing functions aren't available
- * here.
  */
 void runNcurses() {
   Ncurses_Context *view = initNcursesView(GAME_WIDTH, GAME_HEIGHT);
   if (!view)
     return;
 
-  // Initialize Entities (Same as SDL)
   Player *player = createPlayer(GAME_WIDTH / 2.0f, 30, 50);
   player->y = GAME_HEIGHT - 50;
+
+  // --- ADDED: Load High Score ---
+  player->highScore = loadHighScore();
+  // ------------------------------
+
   Swarm *swarm = createSwarm(1);
   Projectiles *bullets = createProjectiles(MAX_PROJECTILES);
   ExplosionManager *explosions = createExplosionManager();
@@ -256,8 +272,6 @@ void runNcurses() {
     lastTime = currentTime;
 
     // B. Input
-    // needsReset is a flag passed by reference because Ncurses input is handled
-    // differently
     isRunning =
         handleNcursesInput(player, bullets, &state, &needsReset, deltaTime);
 
@@ -274,6 +288,14 @@ void runNcurses() {
 
       bool hit = false;
       if (checkCollisions(player, swarm, bullets, explosions, bunkers, &hit)) {
+
+        // --- ADDED: Save High Score on Death ---
+        if (player->score > player->highScore) {
+          player->highScore = player->score;
+          saveHighScore(player->score);
+        }
+        // ---------------------------------------
+
         state = STATE_GAME_OVER;
         playerWon = false;
       }
@@ -283,6 +305,14 @@ void runNcurses() {
         currentLevel++;
         if (currentLevel > 2) {
           playerWon = true;
+
+          // --- ADDED: Save High Score on Win ---
+          if (player->score > player->highScore) {
+            player->highScore = player->score;
+            saveHighScore(player->score);
+          }
+          // -------------------------------------
+
           state = STATE_GAME_OVER;
         } else {
           destroySwarm(swarm);
@@ -291,9 +321,7 @@ void runNcurses() {
           bullets = createProjectiles(MAX_PROJECTILES);
         }
       }
-    }
-    // Reset Logic specific to Ncurses loop structure
-    else if (state == STATE_MENU && needsReset) {
+    } else if (state == STATE_MENU && needsReset) {
       resetGameLogic(player, &swarm, &bullets, bunkers, &currentLevel);
       needsReset = false;
       playerWon = false;
@@ -303,10 +331,8 @@ void runNcurses() {
     renderNcurses(view, player, bullets, swarm, explosions, bunkers, state,
                   playerWon);
 
-    // E. Throttle
-    // Terminals refresh very fast. We sleep briefly to save CPU and reduce
-    // flicker.
-    struct timespec sleepTs = {0, 15000000}; // 15ms
+    // E. Throttle (16.6ms for ~60 FPS)
+    struct timespec sleepTs = {0, 16666667};
     nanosleep(&sleepTs, NULL);
   }
 
@@ -323,15 +349,12 @@ void runNcurses() {
 //               ENTRY POINT
 // ==========================================
 int main(int argc, char *argv[]) {
-  // Seed the random number generator for enemy shooting variation
   srand((unsigned int)time(NULL));
 
-  // Check command line arguments for mode selection
   if (argc > 1 && strcmp(argv[1], "ncurses") == 0) {
     printf("Mode: NCURSES\n");
     runNcurses();
   } else {
-    // Default to SDL (Graphical)
     printf("Mode: SDL\n");
     runSDL();
   }
