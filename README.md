@@ -140,4 +140,4 @@
  Abed YLIES
 
  Projet réalisé dans le cadre du cours de Programmation C.
- Code source sous licence libre (MIT/Unlicense).
+ Code source sous licence libre MIT.

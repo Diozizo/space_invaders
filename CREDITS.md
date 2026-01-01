@@ -12,8 +12,8 @@
 
 ## Images
 
-- All images generated using Google Gemini AI  
-  Usage according to Gemini Terms of Service: https://www.google.com/ai/terms
+- **Game Sprites (Aliens, Player, Mystery Ship):** Generated using Google Gemini AI.
+- **Usage:** According to Gemini Terms of Service.
 
 ## Fonts
 
