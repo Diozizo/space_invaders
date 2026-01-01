@@ -8,7 +8,7 @@
   License: Creative Commons Attribution 4.0 (CC BY 4.0)
 
 - Sound effects “shoot”, “enemy_shoot”, “explosion”, and “player_explosion” generated using jsfxr  
-  https://github.com/grumdrig/jsfxr
+  https://github.com/chr15m/jsfxr
 
 ## Images
 
