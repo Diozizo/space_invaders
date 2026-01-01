@@ -1,4 +1,4 @@
- # SPACE INVADERS (C / SDL3 & Ncurses)
+# SPACE INVADERS (C / SDL3 & Ncurses)
 
  ## Introduction
  Ce projet est une réimplémentation du célèbre jeu d'arcade **Space Invaders** en langage C. Il a été conçu pour démontrer une architecture logicielle modulaire respectant le patron de conception **MVC (Modèle-Vue-Contrôleur)**.
@@ -130,12 +130,14 @@
  * **Game Loop & Delta Time :** Le jeu utilise un pas de temps variable (Delta Time) pour la physique, mais impose une limite de **60 FPS** pour garantir une vitesse constante sur toutes les machines.
  * **Système de Boss :** Apparition d'un Boss au niveau 2 avec barre de vie et comportement spécifique.
  * **Audio (SDL) :** Musique de fond, bruitages de tir et d'explosion (via SDL_mixer).
- * **Persistance (I/O) :** Sauvegarde automatique du meilleur score dans un fichier texte local (`highscore.txt`).
+ * **Persistance (I/O) :** Sauvegarde automatique du meilleur score dans un fichier **JSON** (`savegame.json`). Le chemin est résolu dynamiquement pour être toujours situé dans le dossier de l'exécutable (`build/`).
  * **Animations :** Sprites animés pour les ennemis et effets de particules pour le moteur du joueur.
 
  ---
 
  ## Auteurs et Licence
+ Dhiaeddine MERAD
+ Abed YLIES
 
  Projet réalisé dans le cadre du cours de Programmation C.
  Code source sous licence libre (MIT/Unlicense).

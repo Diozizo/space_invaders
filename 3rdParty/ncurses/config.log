@@ -43,7 +43,7 @@ configure:1206: found /usr/bin/grep
 configure:1214: result: grep
 configure:1225: checking for egrep
 configure:1281: result: grep -E
-configure:1291: result: Configuring NCURSES 6.4 ABI 6 (Thu Jan  1 14:25:49 CET 2026)
+configure:1291: result: Configuring NCURSES 6.4 ABI 6 (Thu Jan  1 14:39:11 CET 2026)
 configure:1295: checking for package version
 configure:1316: result: 6.4
 configure:1319: checking for package patch date
@@ -1027,7 +1027,7 @@ configure:18974: $? = 0
 configure:18984: result: yes
 configure:19071: checking if -lm needed for math functions
 configure:19094: gcc -o conftest -g -O2 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG  conftest.c  >&5
-/usr/bin/ld: /tmp/ccHITgZ9.o: in function `main':
+/usr/bin/ld: /tmp/ccHh7OUg.o: in function `main':
 /home/zizou/studies/codes/c_cpp/projects/space_invaders/3rdParty/ncurses/conftest.c:19087:(.text.startup+0x20): undefined reference to `sin'
 /usr/bin/ld: /home/zizou/studies/codes/c_cpp/projects/space_invaders/3rdParty/ncurses/conftest.c:19087:(.text.startup+0x2b): undefined reference to `pow'
 collect2: error: ld returned 1 exit status
@@ -1317,7 +1317,7 @@ configure:21482: $? = 0
 configure:21493: result: yes
 configure:21508: checking if external errno exists
 configure:21530: gcc -o conftest -g -O2 --param max-inline-insns-single=1200 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG  conftest.c  >&5
-/usr/bin/ld: errno: TLS definition in /lib/x86_64-linux-gnu/libc.so.6 section .tbss mismatches non-TLS reference in /tmp/ccvRTN3G.o
+/usr/bin/ld: errno: TLS definition in /lib/x86_64-linux-gnu/libc.so.6 section .tbss mismatches non-TLS reference in /tmp/ccwMD2Et.o
 /usr/bin/ld: /lib/x86_64-linux-gnu/libc.so.6: error adding symbols: bad value
 collect2: error: ld returned 1 exit status
 configure:21533: $? = 1
@@ -1378,7 +1378,7 @@ configure:21737: $? = 0
 configure:21747: result: yes
 configure:21691: checking for issetugid
 configure:21728: gcc -o conftest -g -O2 --param max-inline-insns-single=1200 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG  conftest.c  >&5
-/usr/bin/ld: /tmp/ccSK21SY.o: in function `main':
+/usr/bin/ld: /tmp/ccfeybMj.o: in function `main':
 /home/zizou/studies/codes/c_cpp/projects/space_invaders/3rdParty/ncurses/conftest.c:21721:(.text.startup+0x9): undefined reference to `issetugid'
 collect2: error: ld returned 1 exit status
 configure:21731: $? = 1
@@ -1469,7 +1469,7 @@ configure:21737: $? = 0
 configure:21747: result: yes
 configure:21691: checking for sigvec
 configure:21728: gcc -o conftest -g -O2 --param max-inline-insns-single=1200 -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG  conftest.c  >&5
-/usr/bin/ld: /tmp/ccfddXz4.o: in function `main':
+/usr/bin/ld: /tmp/cc9CoEit.o: in function `main':
 /home/zizou/studies/codes/c_cpp/projects/space_invaders/3rdParty/ncurses/conftest.c:21721:(.text.startup+0x9): undefined reference to `sigvec'
 collect2: error: ld returned 1 exit status
 configure:21731: $? = 1
@@ -2192,7 +2192,7 @@ cf_cv_src_modules='ncurses progs panel menu form'
 cf_cv_struct_dirent64='no'
 cf_cv_sys_time_select='yes'
 cf_cv_system_name='linux-gnu'
-cf_cv_timestamp='Thu Jan  1 14:25:49 CET 2026'
+cf_cv_timestamp='Thu Jan  1 14:39:11 CET 2026'
 cf_cv_type_of_bool='unsigned char'
 cf_cv_type_sigaction='no'
 cf_cv_typeof_chtype='uint32_t'
