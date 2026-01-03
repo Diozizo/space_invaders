@@ -1,0 +1,2 @@
+/usr/bin/ar qc SDL3_gfx_Static/libSDL3_gfx.a CMakeFiles/SDL3_gfx_Static.dir/SDL3_framerate.c.o CMakeFiles/SDL3_gfx_Static.dir/SDL3_gfxPrimitives.c.o CMakeFiles/SDL3_gfx_Static.dir/SDL3_imageFilter.c.o CMakeFiles/SDL3_gfx_Static.dir/SDL3_rotozoom.c.o
+/usr/bin/ranlib SDL3_gfx_Static/libSDL3_gfx.a

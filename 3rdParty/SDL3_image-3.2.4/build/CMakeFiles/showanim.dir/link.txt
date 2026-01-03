@@ -1,0 +1,1 @@
+/usr/bin/cc -O2 -g -DNDEBUG CMakeFiles/showanim.dir/examples/showanim.c.o -o showanim  -Wl,-rpath,/home/zizou/studies/codes/c_cpp/projects/space_invaders/3rdParty/SDL3_image-3.2.4/build:/home/zizou/studies/codes/c_cpp/projects/space_invaders/3rdParty/SDL3/build libSDL3_image.so.0.2.4 /home/zizou/studies/codes/c_cpp/projects/space_invaders/3rdParty/SDL3/build/libSDL3.so.0.3.7 
